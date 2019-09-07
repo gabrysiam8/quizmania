@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,8 +16,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -26,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        String role = user.isAdmin() ? "admin" : "user";
+        String role = user.getRole();
         List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(role));
         return new User(user.getUsername(), user.getPassword(), authorities);
     }
