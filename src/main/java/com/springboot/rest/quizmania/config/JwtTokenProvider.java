@@ -20,8 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.token.secret-key:default_secret_key}")
-    private String secretKey;
+    private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     @Value("${jwt.token.expiration-time}")
     private long expirationTime;
@@ -41,13 +40,11 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + expirationTime);
 
-        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
-
         return Jwts.builder()
                    .setClaims(claims)
                    .setIssuedAt(now)
                    .setExpiration(expirationDate)
-                   .signWith(key, SignatureAlgorithm.HS256)
+                   .signWith(secretKey, SignatureAlgorithm.HS256)
                    .compact();
     }
 
