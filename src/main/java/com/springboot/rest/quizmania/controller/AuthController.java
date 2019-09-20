@@ -1,7 +1,9 @@
 package com.springboot.rest.quizmania.controller;
 
+import javax.validation.Valid;
+
 import com.springboot.rest.quizmania.domain.CustomUser;
-import com.springboot.rest.quizmania.dto.UserDto;
+import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody CustomUser user) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody CustomUser user) {
         try {
             service.registerUser(user);
             return new ResponseEntity<>("Account successfully created", HttpStatus.CREATED);
@@ -32,9 +34,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDto userLoginDto) {
         try {
-            return new ResponseEntity<>(service.loginUser(userDto), HttpStatus.OK);
+            return new ResponseEntity<>(service.loginUser(userLoginDto), HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }

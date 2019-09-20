@@ -1,16 +1,19 @@
 package com.springboot.rest.quizmania.dto;
 
-import javax.validation.constraints.NotBlank;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import static com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Data
+@NoArgsConstructor
 public class UserDto {
 
-    @NotBlank
+    private String email;
+
     private String username;
 
-    @NotBlank
-    private String password;
-
+    @JsonProperty(access = Access.READ_ONLY)
+    private String role;
 }
