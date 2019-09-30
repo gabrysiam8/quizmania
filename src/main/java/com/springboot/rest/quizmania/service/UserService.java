@@ -114,7 +114,8 @@ public class UserService {
             throw new IllegalArgumentException("Wrong password!");
 
         userUpdate.setPassword(passwordEncoder.encode(newPassword));
-        return "Password changed successfully";
+        repository.save(userUpdate);
+        return "Password successfully changed";
     }
 
     public String deleteUser(UserDetails currentUser) {
@@ -123,6 +124,6 @@ public class UserService {
             throw new UsernameNotFoundException("No user with that email or username exists!");
 
         repository.delete(user);
-        return "Account deleted successfully";
+        return "Account successfully deleted";
     }
 }
