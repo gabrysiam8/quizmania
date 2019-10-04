@@ -22,6 +22,8 @@ public class Quiz {
 
     private DifficultyLevel level;
 
+    private Boolean isPublic;
+
     @Size(min=1)
     private List<@NotBlank String> questionIds;
 
@@ -37,11 +39,12 @@ public class Quiz {
         return Objects.equals(id, quiz.id) &&
             Objects.equals(category, quiz.category) &&
             level == quiz.level &&
+            Objects.equals(isPublic, quiz.isPublic) &&
             Objects.equals(questionIds, quiz.questionIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, category, level, questionIds);
+        return Objects.hash(id, category, level, isPublic, questionIds);
     }
 }

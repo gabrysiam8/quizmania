@@ -1,5 +1,8 @@
 package com.springboot.rest.quizmania.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.springboot.rest.quizmania.domain.Quiz;
 import com.springboot.rest.quizmania.repository.QuizRepository;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,14 @@ public class QuizService {
         return repository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("No quiz with that id exists!"));
+    }
+
+    public List<Quiz> getAllPublicQuizzes() {
+        return repository
+            .findAll()
+            .stream()
+            .filter(Quiz::getIsPublic)
+            .collect(Collectors.toList());
     }
 
     public Quiz updateQuiz(String id, Quiz newQuiz) {

@@ -31,6 +31,11 @@ public class QuizController {
         return new ResponseEntity<>(newQuiz, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAllPublicQuizzes() {
+        return new ResponseEntity<>(service.getAllPublicQuizzes(), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getQuizById(@PathVariable(value="id") String id) {
         try {
