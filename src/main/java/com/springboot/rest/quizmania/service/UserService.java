@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.springboot.rest.quizmania.config.JwtTokenProvider;
 import com.springboot.rest.quizmania.domain.CustomUser;
+import com.springboot.rest.quizmania.dto.PasswordDto;
 import com.springboot.rest.quizmania.dto.UserDto;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
@@ -105,15 +106,16 @@ public class UserService {
             .collect(Collectors.toList());
     }
 
-    public String updateUserPassword(UserDetails currentUser, String oldPassword, String newPassword) {
+    public String updateUserPassword(UserDetails currentUser, PasswordDto passwords) {
         CustomUser userUpdate = repository.findByUsername(currentUser.getUsername());
         if(userUpdate==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
 
-        if(!passwordEncoder.matches(oldPassword, userUpdate.getPassword()))
+        if(!passwordEncoder.matches(passwords.getOldPassword(), userUpdate.getPassword()))
             throw new IllegalArgumentException("Wrong password!");
-
-        userUpdate.setPassword(passwordEncoder.encode(newPassword));
+        if(!passwords.getNewPassword().equals(passwords.getPasswordConfirmation()))
+            throw new IllegalArgumentException("The Password confirmation must match New password");
+        userUpdate.setPassword(passwordEncoder.encode(passwords.getNewPassword()));
         repository.save(userUpdate);
         return "Password successfully changed";
     }

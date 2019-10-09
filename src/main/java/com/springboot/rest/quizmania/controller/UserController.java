@@ -45,7 +45,7 @@ public class UserController {
     @PutMapping("/me/password")
     public ResponseEntity<?> updateCurrentUserPassword(@AuthenticationPrincipal UserDetails currentUser, @Valid @RequestBody PasswordDto passwords) {
         try {
-            String msg = service.updateUserPassword(currentUser, passwords.getOldPassword(), passwords.getNewPassword());
+            String msg = service.updateUserPassword(currentUser, passwords);
             return new ResponseEntity<>(msg, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

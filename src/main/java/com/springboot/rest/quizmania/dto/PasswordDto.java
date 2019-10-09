@@ -12,4 +12,7 @@ public class PasswordDto {
 
     @NotBlank
     private String newPassword;
+
+    @NotBlank
+    private String passwordConfirmation;
 }
