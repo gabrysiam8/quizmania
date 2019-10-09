@@ -6,6 +6,8 @@ import com.springboot.rest.quizmania.domain.Quiz;
 import com.springboot.rest.quizmania.service.QuizService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,9 +34,14 @@ public class QuizController {
         return new ResponseEntity<>(newQuiz, HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> getAllPublicQuizzes() {
         return new ResponseEntity<>(service.getAllPublicQuizzes(), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllUserQuizzes(@AuthenticationPrincipal UserDetails userDetails) {
+        return new ResponseEntity<>(service.getAllUserQuizzes(userDetails), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
