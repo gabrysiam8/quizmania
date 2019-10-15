@@ -1,14 +1,14 @@
 package com.springboot.rest.quizmania.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.springboot.rest.quizmania.domain.CustomUser;
+import com.springboot.rest.quizmania.domain.DifficultyLevel;
 import com.springboot.rest.quizmania.domain.Quiz;
 import com.springboot.rest.quizmania.repository.QuizRepository;
-import com.springboot.rest.quizmania.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,14 +16,16 @@ public class QuizService {
 
     private final QuizRepository repository;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public QuizService(QuizRepository repository, UserRepository userRepository) {
+    public QuizService(QuizRepository repository, UserService userService) {
         this.repository = repository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
-    public Quiz addQuiz(Quiz quiz) {
+    public Quiz addQuiz(UserDetails userDetails, Quiz quiz) {
+        CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
+        quiz.setAuthorId(currentUser.getId());
         return repository.save(quiz);
     }
 
@@ -42,9 +44,7 @@ public class QuizService {
     }
 
     public List<Quiz> getAllUserQuizzes(UserDetails userDetails) {
-        CustomUser currentUser = userRepository.findByUsername(userDetails.getUsername());
-        if(currentUser==null)
-            throw new UsernameNotFoundException("No user with that email or username exists!");
+        CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
         return repository
             .findAll()
             .stream()
@@ -69,5 +69,12 @@ public class QuizService {
             throw new IllegalArgumentException("No question with that id exists!");
         repository.deleteById(id);
         return "Quiz successfully deleted";
+    }
+
+    public List<String> getQuizDifficultyLevels() {
+        return Arrays
+            .stream(DifficultyLevel.values())
+            .map(Enum::toString)
+            .collect(Collectors.toList());
     }
 }

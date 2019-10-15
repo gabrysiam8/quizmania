@@ -44,10 +44,17 @@ public class UserService {
         this.mapper = mapper;
     }
 
-    private CustomUser findUserByEmailOrUsername(String username) {
+    private CustomUser findUserByEmailOrUsername(String emailOrUsername) {
         return Optional
-            .ofNullable(repository.findByEmail(username))
-            .orElse(repository.findByUsername(username));
+            .ofNullable(repository.findByEmail(emailOrUsername))
+            .orElse(repository.findByUsername(emailOrUsername));
+    }
+
+    public CustomUser findUserByUsername(String username) {
+        CustomUser currentUser = repository.findByUsername(username);
+        if(currentUser==null)
+            throw new UsernameNotFoundException("No user with that email or username exists!");
+        return currentUser;
     }
 
     public CustomUser registerUser(CustomUser user) {
@@ -87,6 +94,18 @@ public class UserService {
 
         return response;
     }
+
+//    public Map<String,String> refreshAndGetNewToken(String token) {
+//        String username = tokenProvider.getUsernameFromToken(token);
+//        CustomUser user = repository.findByUsername(username);
+//        if(tokenProvider.canTokenBeRefreshed(token)) {
+//            Map<String,String> response = new HashMap<>();
+//            response.put("tokenType", "Bearer");
+//            response.put("token", tokenProvider.refreshToken(token));
+//            return response;
+//        }
+//        return null;
+//    }
 
     public UserDto getUserInfo(UserDetails userDetails) {
         CustomUser user = repository.findByUsername(userDetails.getUsername());

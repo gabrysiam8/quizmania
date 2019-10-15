@@ -29,8 +29,8 @@ public class QuizController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addQuiz(@Valid @RequestBody Quiz quiz) {
-        Quiz newQuiz =  service.addQuiz(quiz);
+    public ResponseEntity<?> addQuiz(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody Quiz quiz) {
+        Quiz newQuiz =  service.addQuiz(userDetails, quiz);
         return new ResponseEntity<>(newQuiz, HttpStatus.OK);
     }
 
@@ -70,5 +70,10 @@ public class QuizController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/level")
+    public ResponseEntity<?> getAllQuizLevels() {
+        return new ResponseEntity<>(service.getQuizDifficultyLevels(), HttpStatus.OK);
     }
 }

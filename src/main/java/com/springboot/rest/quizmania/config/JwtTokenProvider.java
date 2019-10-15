@@ -48,20 +48,54 @@ public class JwtTokenProvider {
                    .compact();
     }
 
+    private Claims getAllClaimsFromToken(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    }
+
+    public String getUsernameFromToken(String token) {
+        return getAllClaimsFromToken(token).getSubject();
+    }
+
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
+        UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsernameFromToken(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public String getUsername(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-    }
+//    private Boolean isTokenExpired(String token) {
+//        Claims claims = getAllClaimsFromToken(token);
+//        final Date expiration = claims.getExpiration();
+//        return expiration.before(new Date());
+//    }
+
+//    private Boolean ignoreTokenExpiration(String token) {
+//        // here you specify tokens, for that the expiration is ignored
+//        return false;
+//    }
+
+//    public Boolean canTokenBeRefreshed(String token) {
+//        return (!isTokenExpired(token) || ignoreTokenExpiration(token));
+//    }
+//
+//    public String refreshToken(String token) {
+//        Date now = new Date();
+//        Date expirationDate = new Date(now.getTime() + expirationTime);
+//
+//        final Claims claims = getAllClaimsFromToken(token);
+//        claims.setIssuedAt(now);
+//        claims.setExpiration(expirationDate);
+//
+//        return Jwts.builder()
+//                   .setClaims(claims)
+//                   .setIssuedAt(now)
+//                   .setExpiration(expirationDate)
+//                   .signWith(secretKey, SignatureAlgorithm.HS256)
+//                   .compact();
+//    }
 
     public boolean validateToken(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-
-            return !claims.getBody().getExpiration().before(new Date());
+            Claims claims = getAllClaimsFromToken(token);
+            return !claims.getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             throw new RuntimeException("Expired or invalid JWT token");
         }
