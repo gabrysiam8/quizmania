@@ -32,4 +32,6 @@ public class CustomUser {
     private String password;
 
     private String role;
+
+    private boolean enabled;
 }

@@ -37,7 +37,7 @@ public class ScoreService {
                 return correctAnswer.equals(entry.getValue()) ? 1 : 0;
             })
             .average()
-            .ifPresent(s -> score.setPercentageScore(s*100));
+            .ifPresent(s -> score.setPercentageScore(Math.round(s*10000.0)/100.0));
 
         return repository.save(score);
     }

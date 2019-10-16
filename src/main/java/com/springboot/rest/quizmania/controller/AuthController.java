@@ -1,16 +1,22 @@
 package com.springboot.rest.quizmania.controller;
 
+import java.util.Calendar;
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 
+import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
+import com.springboot.rest.quizmania.service.ConfirmationTokenService;
 import com.springboot.rest.quizmania.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,8 +25,11 @@ public class AuthController {
 
     private final UserService service;
 
-    public AuthController(UserService service) {
+    private final ConfirmationTokenService confirmationTokenService;
+
+    public AuthController(UserService service, ConfirmationTokenService confirmationTokenService) {
         this.service = service;
+        this.confirmationTokenService = confirmationTokenService;
     }
 
     @PostMapping("/register")
@@ -41,4 +50,13 @@ public class AuthController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
+
+    @GetMapping(value="/confirmation")
+    public ResponseEntity<?> confirmUserAccount(@RequestParam("token")String confirmationToken)
+    {
+        String message = service.confirmUserAccount(confirmationToken);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+
 }
