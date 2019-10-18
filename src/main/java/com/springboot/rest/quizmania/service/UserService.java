@@ -1,18 +1,23 @@
 package com.springboot.rest.quizmania.service;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.mail.MessagingException;
+
 import com.springboot.rest.quizmania.config.JwtTokenProvider;
+import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.PasswordDto;
 import com.springboot.rest.quizmania.dto.UserDto;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,13 +40,20 @@ public class UserService {
 
     private final ModelMapper mapper;
 
+    private final ConfirmationTokenService confirmationTokenService;
+
+    private final EmailSenderService emailSenderService;
+
     public UserService(UserRepository repository, AuthenticationManager authenticationManager,
-                       PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, ModelMapper mapper) {
+                       PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, ModelMapper mapper,
+                       ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService) {
         this.repository = repository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.mapper = mapper;
+        this.confirmationTokenService = confirmationTokenService;
+        this.emailSenderService = emailSenderService;
     }
 
     private CustomUser findUserByEmailOrUsername(String emailOrUsername) {
@@ -55,6 +67,11 @@ public class UserService {
         if(currentUser==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
         return currentUser;
+    }
+
+    private CustomUser enableUser(CustomUser user) {
+        user.setEnabled(true);
+        return repository.save(user);
     }
 
     public CustomUser registerUser(CustomUser user) {
@@ -72,7 +89,19 @@ public class UserService {
                                        .role("USER")
                                        .build();
 
-        return repository.save(newUser);
+        CustomUser savedUser = repository.save(newUser);
+
+        ConfirmationToken confirmationToken = confirmationTokenService.createToken(savedUser);
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setSubject("Complete Registration!");
+        mailMessage.setText("To confirm your account, please click here : "
+            +"http://localhost:8080/confirmation?token="+confirmationToken.getToken());
+
+        emailSenderService.sendEmail(mailMessage);
+
+        return savedUser;
     }
 
     public Map<String,String> loginUser(UserLoginDto userDto) {
@@ -146,5 +175,18 @@ public class UserService {
 
         repository.delete(user);
         return "Account successfully deleted";
+    }
+
+    public String confirmUserAccount(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenService.getConfirmationToken(token);
+        if(confirmationToken==null) {
+            return "Invalid token!";
+        }
+        Calendar cal = Calendar.getInstance();
+        if ((confirmationToken.getExpirationDate().getTime() - cal.getTime().getTime()) <= 0) {
+            return "Token expired!";
+        }
+        this.enableUser(confirmationToken.getUser());
+        return "Account successfully verified";
     }
 }
