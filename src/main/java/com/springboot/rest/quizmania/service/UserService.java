@@ -1,14 +1,5 @@
 package com.springboot.rest.quizmania.service;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.mail.MessagingException;
-
 import com.springboot.rest.quizmania.config.JwtTokenProvider;
 import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import com.springboot.rest.quizmania.domain.CustomUser;
@@ -18,14 +9,22 @@ import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -93,13 +92,22 @@ public class UserService {
 
         ConfirmationToken confirmationToken = confirmationTokenService.createToken(savedUser);
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getEmail());
-        mailMessage.setSubject("Complete Registration!");
-        mailMessage.setText("To confirm your account, please click here : "
-            +"http://localhost:8080/confirmation?token="+confirmationToken.getToken());
+        String link = "http://localhost:3000/confirmation?token="+confirmationToken.getToken();
+        String content = "To confirm your account, please click here: <a href="+link+">verify</a>";
 
-        emailSenderService.sendEmail(mailMessage);
+        MimeMessage mail = emailSenderService.getSender().createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mail, true);
+            helper.setTo(user.getEmail());
+            helper.setReplyTo("quizmania@no-reply.com");
+            helper.setFrom("quizmania@no-reply.com");
+            helper.setSubject("Complete Registration");
+            helper.setText(content, true);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+
+        emailSenderService.sendEmail(mail);
 
         return savedUser;
     }
@@ -108,6 +116,8 @@ public class UserService {
         CustomUser user = findUserByEmailOrUsername(userDto.getUsername());
         if(user==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
+        if(!user.isEnabled())
+            throw new DisabledException("User account is locked!");
 
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -180,13 +190,13 @@ public class UserService {
     public String confirmUserAccount(String token) {
         ConfirmationToken confirmationToken = confirmationTokenService.getConfirmationToken(token);
         if(confirmationToken==null) {
-            return "Invalid token!";
+            throw new IllegalArgumentException("Invalid token.");
         }
         Calendar cal = Calendar.getInstance();
         if ((confirmationToken.getExpirationDate().getTime() - cal.getTime().getTime()) <= 0) {
-            return "Token expired!";
+            throw new IllegalArgumentException("Token have expired.");
         }
         this.enableUser(confirmationToken.getUser());
-        return "Account successfully verified";
+        return "Account successfully verified.";
     }
 }

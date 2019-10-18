@@ -2,8 +2,11 @@ package com.springboot.rest.quizmania.service;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import javax.mail.internet.MimeMessage;
 
 @Service
 public class EmailSenderService {
@@ -14,8 +17,12 @@ public class EmailSenderService {
         this.sender = sender;
     }
 
+    public JavaMailSender getSender() {
+        return sender;
+    }
+
     @Async
-    public void sendEmail(SimpleMailMessage email) {
+    public void sendEmail(MimeMessage email) {
         sender.send(email);
     }
 }
