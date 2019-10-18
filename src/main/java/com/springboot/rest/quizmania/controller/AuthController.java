@@ -53,9 +53,12 @@ public class AuthController {
 
     @GetMapping(value="/confirmation")
     public ResponseEntity<?> confirmUserAccount(@RequestParam("token")String confirmationToken)
-    {
-        String message = service.confirmUserAccount(confirmationToken);
-        return new ResponseEntity<>(message, HttpStatus.OK);
+    {   try {
+            String message = service.confirmUserAccount(confirmationToken);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 
