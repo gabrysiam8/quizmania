@@ -33,7 +33,7 @@ public class ScoreService {
             .stream()
             .mapToInt(entry -> {
                 Question question = questionService.getQuestionById(entry.getKey());
-                String correctAnswer = question.getAnswers().get(question.getCorrectAnswer());
+                String correctAnswer = question.getCorrectAnswer();
                 return correctAnswer.equals(entry.getValue()) ? 1 : 0;
             })
             .average()

@@ -19,8 +19,9 @@ public class Question {
     @NotBlank
     private String question;
 
-    @Size(min=4, max=4)
+    @Size(min=2, max=4)
     private List<@NotBlank String> answers;
 
-    private int correctAnswer;
+    @NotBlank
+    private String correctAnswer;
 }

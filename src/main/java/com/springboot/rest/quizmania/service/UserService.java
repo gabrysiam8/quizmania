@@ -116,8 +116,6 @@ public class UserService {
         CustomUser user = findUserByEmailOrUsername(userDto.getUsername());
         if(user==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
-        if(!user.isEnabled())
-            throw new DisabledException("User account is locked!");
 
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -127,6 +125,9 @@ public class UserService {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        if(!user.isEnabled())
+            throw new DisabledException("User account is locked!");
+
         Map<String,String> response = new HashMap<>();
         response.put("tokenType", "Bearer");
         response.put("token", tokenProvider.generateToken(user));
