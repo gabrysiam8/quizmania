@@ -41,4 +41,10 @@ public class ScoreService {
 
         return repository.save(score);
     }
+
+    public Score getScoreById(String id) {
+        return repository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("No score with that id exists!"));
+    }
 }

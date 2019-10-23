@@ -4,11 +4,15 @@ import java.util.Map;
 import javax.validation.constraints.NotBlank;
 
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="score")
 @Data
 public class Score {
+
+    @Id
+    private String id;
 
     @NotBlank
     private String quizId;
