@@ -87,9 +87,9 @@ public class UserService {
                                        .password(passwordEncoder.encode(user.getPassword()))
                                        .role("USER")
                                        .build();
+        CustomUser savedUser = repository.save(newUser);
 
-        ConfirmationToken confirmationToken = confirmationTokenService.createToken(newUser);
-
+        ConfirmationToken confirmationToken = confirmationTokenService.createToken(savedUser);
         String link = "https://quizmania-app.herokuapp.com/confirmation?token="+confirmationToken.getToken();
         String content = "To confirm your account, please click here: <a href="+link+">verify</a>";
 
@@ -107,7 +107,7 @@ public class UserService {
 
         emailSenderService.sendEmail(mail);
 
-        return repository.save(newUser);
+        return savedUser;
     }
 
     public Map<String,String> loginUser(UserLoginDto userDto) {
