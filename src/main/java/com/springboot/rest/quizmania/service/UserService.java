@@ -92,7 +92,7 @@ public class UserService {
 
         ConfirmationToken confirmationToken = confirmationTokenService.createToken(savedUser);
 
-        String link = "http://localhost:3000/confirmation?token="+confirmationToken.getToken();
+        String link = "https://quizmania-api.herokuapp.com/api/confirmation?token="+confirmationToken.getToken();
         String content = "To confirm your account, please click here: <a href="+link+">verify</a>";
 
         MimeMessage mail = emailSenderService.getSender().createMimeMessage();
