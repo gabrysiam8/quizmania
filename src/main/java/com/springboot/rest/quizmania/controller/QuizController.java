@@ -53,6 +53,15 @@ public class QuizController {
         }
     }
 
+    @GetMapping("/{id}/question")
+    public ResponseEntity<?> getQuizQuestionsById(@PathVariable(value="id") String id) {
+        try {
+            return new ResponseEntity<>(service.getQuizQuestionsById(id), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateQuestion(@PathVariable(value="id") String id, @Valid @RequestBody Quiz quiz) {
         try {

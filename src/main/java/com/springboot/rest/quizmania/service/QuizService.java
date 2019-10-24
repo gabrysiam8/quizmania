@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.domain.DifficultyLevel;
+import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Quiz;
 import com.springboot.rest.quizmania.repository.QuizRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,9 +19,12 @@ public class QuizService {
 
     private final UserService userService;
 
-    public QuizService(QuizRepository repository, UserService userService) {
+    private final QuestionService questionService;
+
+    public QuizService(QuizRepository repository, UserService userService, QuestionService questionService) {
         this.repository = repository;
         this.userService = userService;
+        this.questionService = questionService;
     }
 
     public Quiz addQuiz(UserDetails userDetails, Quiz quiz) {
@@ -33,6 +37,14 @@ public class QuizService {
         return repository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("No quiz with that id exists!"));
+    }
+
+    public List<Question> getQuizQuestionsById(String id) {
+        return getQuizById(id)
+                .getQuestionIds()
+                .stream()
+                .map(questionId -> questionService.getQuestionById(questionId))
+                .collect(Collectors.toList());
     }
 
     public List<Quiz> getAllPublicQuizzes() {
