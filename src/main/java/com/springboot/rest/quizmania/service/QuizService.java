@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.domain.DifficultyLevel;
 import com.springboot.rest.quizmania.domain.Question;
@@ -33,18 +38,29 @@ public class QuizService {
         return repository.save(quiz);
     }
 
-    public Quiz getQuizById(String id) {
-        return repository
+    public String getQuizById(String id, String[] fields) throws JsonProcessingException {
+        Quiz quiz = repository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("No quiz with that id exists!"));
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        SimpleBeanPropertyFilter theFilter = fields==null ? SimpleBeanPropertyFilter.serializeAll() : SimpleBeanPropertyFilter.filterOutAllExcept(fields);
+        FilterProvider filters = new SimpleFilterProvider().addFilter("quizFilter", theFilter);
+
+        return mapper.writer(filters).writeValueAsString(quiz);
     }
 
     public List<Question> getQuizQuestionsById(String id) {
-        return getQuizById(id)
-                .getQuestionIds()
-                .stream()
-                .map(questionId -> questionService.getQuestionById(questionId))
-                .collect(Collectors.toList());
+        return repository
+                .findById(id)
+                .map(quiz -> quiz
+                        .getQuestionIds()
+                        .stream()
+                        .map(questionId -> questionService.getQuestionById(questionId))
+                        .collect(Collectors.toList())
+                )
+                .orElseThrow(() -> new IllegalArgumentException("No quiz with that id exists!"));
     }
 
     public List<Quiz> getAllPublicQuizzes() {

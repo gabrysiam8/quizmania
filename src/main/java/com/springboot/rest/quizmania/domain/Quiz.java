@@ -6,12 +6,14 @@ import java.util.Objects;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="quiz")
 @Data
+@JsonFilter("quizFilter")
 public class Quiz {
 
     @Id

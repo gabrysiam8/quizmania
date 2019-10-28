@@ -1,5 +1,8 @@
 package com.springboot.rest.quizmania.service;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Score;
@@ -27,7 +30,8 @@ public class ScoreService {
             CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
             score.setUserId(currentUser.getId());
         }
-        score
+
+        IntStream result = score
             .getUserAnswers()
             .entrySet()
             .stream()
@@ -35,9 +39,14 @@ public class ScoreService {
                 Question question = questionService.getQuestionById(entry.getKey());
                 String correctAnswer = question.getCorrectAnswer();
                 return correctAnswer.equals(entry.getValue()) ? 1 : 0;
-            })
-            .average()
-            .ifPresent(s -> score.setPercentageScore(Math.round(s*10000.0)/100.0));
+            });
+
+        int goodAnswers = result.sum();
+        score.setGoodAnswers(goodAnswers);
+        int allAnswers = score.getUserAnswers().size();
+        score.setAllAnswers(allAnswers);
+        double avg = (double)goodAnswers/allAnswers;
+        score.setPercentageScore(Math.round(avg*10000.0)/100.0);
 
         return repository.save(score);
     }
@@ -46,5 +55,10 @@ public class ScoreService {
         return repository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("No score with that id exists!"));
+    }
+
+    public List<Score> getScoresByUser(UserDetails userDetails) {
+        CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
+        return repository.getScoresByUserId(currentUser.getId());
     }
 }

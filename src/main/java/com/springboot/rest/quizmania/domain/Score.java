@@ -21,5 +21,9 @@ public class Score {
 
     private Map<@NotBlank String,String> userAnswers;
 
+    private int goodAnswers;
+
+    private int allAnswers;
+
     private double percentageScore;
 }

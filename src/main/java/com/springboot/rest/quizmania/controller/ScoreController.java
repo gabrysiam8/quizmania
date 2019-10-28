@@ -43,4 +43,13 @@ public class ScoreController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping
+    public ResponseEntity<?> getScoresByUserId(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            return new ResponseEntity<>(service.getScoresByUser(userDetails), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

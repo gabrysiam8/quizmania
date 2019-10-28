@@ -2,6 +2,7 @@ package com.springboot.rest.quizmania.controller;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.springboot.rest.quizmania.domain.Quiz;
 import com.springboot.rest.quizmania.service.QuizService;
 import org.springframework.http.HttpStatus;
@@ -45,9 +46,10 @@ public class QuizController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getQuizById(@PathVariable(value="id") String id) {
+    public ResponseEntity<?> getQuizById(@PathVariable(value="id") String id, @RequestParam(value = "fields", required = false) String[] fields)
+        throws JsonProcessingException {
         try {
-            return new ResponseEntity<>(service.getQuizById(id), HttpStatus.OK);
+            return new ResponseEntity<>(service.getQuizById(id, fields), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
