@@ -31,6 +31,8 @@ public class ScoreService {
             score.setUserId(currentUser.getId());
         }
 
+        score.setElapsedTimeInMs(score.getEndDate().getTime()-score.getStartDate().getTime());
+
         IntStream result = score
             .getUserAnswers()
             .entrySet()

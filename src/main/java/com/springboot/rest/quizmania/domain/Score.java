@@ -1,5 +1,6 @@
 package com.springboot.rest.quizmania.domain;
 
+import java.util.Date;
 import java.util.Map;
 import javax.validation.constraints.NotBlank;
 
@@ -18,6 +19,12 @@ public class Score {
     private String quizId;
 
     private String userId;
+
+    private Date startDate;
+
+    private Date endDate;
+
+    private long elapsedTimeInMs;
 
     private Map<@NotBlank String,String> userAnswers;
 
