@@ -63,4 +63,8 @@ public class ScoreService {
         CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
         return repository.getScoresByUserId(currentUser.getId());
     }
+
+    public List<Score> getScoresByQuizId(String quizId) {
+        return repository.getScoresByQuizId(quizId);
+    }
 }
