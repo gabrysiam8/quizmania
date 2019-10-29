@@ -17,5 +17,5 @@ public class StatisticsDto {
 
     private double averageTimeInMs;
 
-    private List<Double> allPercentageScores;
+    private List<ScoreDto> scoreDtoList;
 }
