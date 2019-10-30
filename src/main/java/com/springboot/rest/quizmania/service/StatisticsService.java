@@ -7,6 +7,7 @@ import java.util.stream.DoubleStream;
 import com.springboot.rest.quizmania.domain.Score;
 import com.springboot.rest.quizmania.dto.ScoreDto;
 import com.springboot.rest.quizmania.dto.StatisticsDto;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -72,12 +73,21 @@ public class StatisticsService {
             .orElse(0.0);
     }
 
-    public StatisticsDto getQuizStatisticsById(String quizId) {
-        List<Score> quizScores = scoreService.getScoresByQuizId(quizId);
+    public StatisticsDto getQuizStatisticsById(UserDetails userDetails, String quizId, boolean globalFlag) {
+
+        List<Score> quizScores;
+        if(globalFlag)
+            quizScores = scoreService.getScoresByQuizId(quizId);
+        else
+            quizScores = scoreService
+                .getScoresByUser(userDetails)
+                .stream()
+                .filter(score -> score.getQuizId().equals(quizId))
+                .collect(Collectors.toList());
 
         List<ScoreDto> scoreDtoList = quizScores
             .stream()
-            .map(score -> new ScoreDto(score.getElapsedTimeInMs(), score.getPercentageScore()))
+            .map(score -> new ScoreDto(score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
             .collect(Collectors.toList());
 
         return createStatistics(scoreDtoList);
