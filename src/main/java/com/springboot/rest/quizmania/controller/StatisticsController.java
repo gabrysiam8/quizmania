@@ -21,7 +21,7 @@ public class StatisticsController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getQuizById(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> getQuizStatisticsById(@AuthenticationPrincipal UserDetails userDetails,
                                          @RequestParam(value = "quizId", required = true) String quizId,
                                          @RequestParam(value = "global", required = true) boolean globalFlag) {
         try {

@@ -1,6 +1,5 @@
 package com.springboot.rest.quizmania.controller;
 
-import java.util.List;
 import javax.validation.Valid;
 
 import com.springboot.rest.quizmania.dto.PasswordDto;
@@ -8,7 +7,6 @@ import com.springboot.rest.quizmania.dto.UserDto;
 import com.springboot.rest.quizmania.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,13 +31,6 @@ public class UserController {
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         UserDto userDto = service.getUserInfo(userDetails);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
-    }
-
-    @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> getAllUsers() {
-        List<UserDto> allUsers = service.getAllUsersInfo();
-        return new ResponseEntity<>(allUsers, HttpStatus.OK);
     }
 
     @PutMapping("/me/password")

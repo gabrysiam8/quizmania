@@ -15,19 +15,19 @@ public class ScoreService {
 
     private final ScoreRepository repository;
 
-    private final UserService userService;
+    private final AuthService authService;
 
     private final QuestionService questionService;
 
-    public ScoreService(ScoreRepository repository, UserService userService, QuestionService questionService) {
+    public ScoreService(ScoreRepository repository, AuthService authService, QuestionService questionService) {
         this.repository = repository;
-        this.userService = userService;
+        this.authService = authService;
         this.questionService = questionService;
     }
 
     public Score addScore(UserDetails userDetails, Score score) {
         if(userDetails != null) {
-            CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
+            CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
             score.setUserId(currentUser.getId());
         }
 
@@ -60,7 +60,7 @@ public class ScoreService {
     }
 
     public List<Score> getScoresByUser(UserDetails userDetails) {
-        CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
+        CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
         return repository.getScoresByUserId(currentUser.getId());
     }
 

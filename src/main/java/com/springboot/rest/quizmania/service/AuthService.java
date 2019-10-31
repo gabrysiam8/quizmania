@@ -55,6 +55,13 @@ public class AuthService {
             .orElse(repository.findByUsername(emailOrUsername));
     }
 
+    public CustomUser findUserByUsername(String username) {
+        CustomUser currentUser = repository.findByUsername(username);
+        if(currentUser==null)
+            throw new UsernameNotFoundException("No user with that email or username exists!");
+        return currentUser;
+    }
+
     private CustomUser enableUser(CustomUser user) {
         user.setEnabled(true);
         return repository.save(user);

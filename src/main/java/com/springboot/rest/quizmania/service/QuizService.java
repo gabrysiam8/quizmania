@@ -22,18 +22,18 @@ public class QuizService {
 
     private final QuizRepository repository;
 
-    private final UserService userService;
+    private final AuthService authService;
 
     private final QuestionService questionService;
 
-    public QuizService(QuizRepository repository, UserService userService, QuestionService questionService) {
+    public QuizService(QuizRepository repository, AuthService authService, QuestionService questionService) {
         this.repository = repository;
-        this.userService = userService;
+        this.authService = authService;
         this.questionService = questionService;
     }
 
     public Quiz addQuiz(UserDetails userDetails, Quiz quiz) {
-        CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
+        CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
         quiz.setAuthorId(currentUser.getId());
         return repository.save(quiz);
     }
@@ -72,7 +72,7 @@ public class QuizService {
     }
 
     public List<Quiz> getAllUserQuizzes(UserDetails userDetails) {
-        CustomUser currentUser = userService.findUserByUsername(userDetails.getUsername());
+        CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
         return repository
             .findAll()
             .stream()

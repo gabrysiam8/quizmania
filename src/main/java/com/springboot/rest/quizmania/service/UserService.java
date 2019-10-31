@@ -4,14 +4,10 @@ import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.PasswordDto;
 import com.springboot.rest.quizmania.dto.UserDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -20,19 +16,16 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final ModelMapper mapper;
+    private final QuizService quizService;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
+    private final ScoreService scoreService;
+
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, QuizService quizService,
+                       ScoreService scoreService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
-        this.mapper = mapper;
-    }
-
-    public CustomUser findUserByUsername(String username) {
-        CustomUser currentUser = repository.findByUsername(username);
-        if(currentUser==null)
-            throw new UsernameNotFoundException("No user with that email or username exists!");
-        return currentUser;
+        this.quizService = quizService;
+        this.scoreService = scoreService;
     }
 
     public UserDto getUserInfo(UserDetails userDetails) {
@@ -40,17 +33,17 @@ public class UserService {
         if(user==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
 
-        mapper.map(user, UserDto.class);
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
 
-        return mapper.map(user, UserDto.class);
-    }
+        int quizAdded = quizService.getAllUserQuizzes(userDetails).size();
+        userDto.setQuizAddedNumber(quizAdded);
 
-    public List<UserDto> getAllUsersInfo() {
-        return repository
-            .findAll()
-            .stream()
-            .map(user -> mapper.map(user, UserDto.class))
-            .collect(Collectors.toList());
+        int quizAttempts = scoreService.getScoresByUser(userDetails).size();
+        userDto.setQuizAttemptsNumber(quizAttempts);
+
+        return userDto;
     }
 
     public String updateUserPassword(UserDetails currentUser, PasswordDto passwords) {

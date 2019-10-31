@@ -13,16 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatisticsService {
 
-    private final QuizService quizService;
-
     private final ScoreService scoreService;
 
     private enum Stat {
         AVG, MIN, MAX
     }
 
-    public StatisticsService(QuizService quizService, ScoreService scoreService) {
-        this.quizService = quizService;
+    public StatisticsService(ScoreService scoreService) {
         this.scoreService = scoreService;
     }
 
