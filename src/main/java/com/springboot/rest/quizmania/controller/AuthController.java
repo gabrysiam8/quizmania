@@ -1,14 +1,11 @@
 package com.springboot.rest.quizmania.controller;
 
-import java.util.Calendar;
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 
-import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
+import com.springboot.rest.quizmania.service.AuthService;
 import com.springboot.rest.quizmania.service.ConfirmationTokenService;
-import com.springboot.rest.quizmania.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -23,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserService service;
+    private final AuthService service;
 
     private final ConfirmationTokenService confirmationTokenService;
 
-    public AuthController(UserService service, ConfirmationTokenService confirmationTokenService) {
+    public AuthController(AuthService service, ConfirmationTokenService confirmationTokenService) {
         this.service = service;
         this.confirmationTokenService = confirmationTokenService;
     }
@@ -60,6 +57,4 @@ public class AuthController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
-
 }
