@@ -28,8 +28,8 @@ public class UserService {
         this.scoreService = scoreService;
     }
 
-    public UserDto getUserInfo(UserDetails userDetails) {
-        CustomUser user = repository.findByUsername(userDetails.getUsername());
+    public UserDto getUserInfo(String username) {
+        CustomUser user = repository.findByUsername(username);
         if(user==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
 
@@ -37,31 +37,31 @@ public class UserService {
         userDto.setUsername(user.getUsername());
         userDto.setEmail(user.getEmail());
 
-        int quizAdded = quizService.getAllUserQuizzes(userDetails).size();
+        int quizAdded = quizService.getAllUserQuizzes(username).size();
         userDto.setQuizAddedNumber(quizAdded);
 
-        int quizAttempts = scoreService.getScoresByUser(userDetails).size();
+        int quizAttempts = scoreService.getScoresByUser(username).size();
         userDto.setQuizAttemptsNumber(quizAttempts);
 
         return userDto;
     }
 
-    public String updateUserPassword(UserDetails currentUser, PasswordDto passwords) {
-        CustomUser userUpdate = repository.findByUsername(currentUser.getUsername());
+    public String updateUserPassword(String username, PasswordDto passwords) {
+        CustomUser userUpdate = repository.findByUsername(username);
         if(userUpdate==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
 
         if(!passwordEncoder.matches(passwords.getOldPassword(), userUpdate.getPassword()))
             throw new IllegalArgumentException("Wrong password!");
         if(!passwords.getNewPassword().equals(passwords.getPasswordConfirmation()))
-            throw new IllegalArgumentException("The Password confirmation must match New password");
+            throw new IllegalArgumentException("The Password confirmation must match New password!");
         userUpdate.setPassword(passwordEncoder.encode(passwords.getNewPassword()));
         repository.save(userUpdate);
         return "Password successfully changed";
     }
 
-    public String deleteUser(UserDetails currentUser) {
-        CustomUser user = repository.findByUsername(currentUser.getUsername());
+    public String deleteUser(String username) {
+        CustomUser user = repository.findByUsername(username);
         if(user==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
 

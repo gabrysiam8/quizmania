@@ -7,7 +7,6 @@ import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Score;
 import com.springboot.rest.quizmania.repository.ScoreRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,11 +24,9 @@ public class ScoreService {
         this.questionService = questionService;
     }
 
-    public Score addScore(UserDetails userDetails, Score score) {
-        if(userDetails != null) {
-            CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
-            score.setUserId(currentUser.getId());
-        }
+    public Score addScore(String username, Score score) {
+        CustomUser currentUser = authService.findUserByUsername(username);
+        score.setUserId(currentUser.getId());
 
         score.setElapsedTimeInMs(score.getEndDate().getTime()-score.getStartDate().getTime());
 
@@ -59,8 +56,8 @@ public class ScoreService {
             .orElseThrow(() -> new IllegalArgumentException("No score with that id exists!"));
     }
 
-    public List<Score> getScoresByUser(UserDetails userDetails) {
-        CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
+    public List<Score> getScoresByUser(String username) {
+        CustomUser currentUser = authService.findUserByUsername(username);
         return repository.getScoresByUserId(currentUser.getId());
     }
 

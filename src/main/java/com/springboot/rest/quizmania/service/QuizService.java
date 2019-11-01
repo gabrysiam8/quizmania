@@ -32,8 +32,8 @@ public class QuizService {
         this.questionService = questionService;
     }
 
-    public Quiz addQuiz(UserDetails userDetails, Quiz quiz) {
-        CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
+    public Quiz addQuiz(String username, Quiz quiz) {
+        CustomUser currentUser = authService.findUserByUsername(username);
         quiz.setAuthorId(currentUser.getId());
         return repository.save(quiz);
     }
@@ -71,8 +71,8 @@ public class QuizService {
             .collect(Collectors.toList());
     }
 
-    public List<Quiz> getAllUserQuizzes(UserDetails userDetails) {
-        CustomUser currentUser = authService.findUserByUsername(userDetails.getUsername());
+    public List<Quiz> getAllUserQuizzes(String username) {
+        CustomUser currentUser = authService.findUserByUsername(username);
         return repository
             .findAll()
             .stream()

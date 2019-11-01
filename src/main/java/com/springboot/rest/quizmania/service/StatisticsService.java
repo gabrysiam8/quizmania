@@ -70,14 +70,14 @@ public class StatisticsService {
             .orElse(0.0);
     }
 
-    public StatisticsDto getQuizStatisticsById(UserDetails userDetails, String quizId, boolean globalFlag) {
+    public StatisticsDto getQuizStatisticsById(String username, String quizId, boolean globalFlag) {
 
         List<Score> quizScores;
         if(globalFlag)
             quizScores = scoreService.getScoresByQuizId(quizId);
         else
             quizScores = scoreService
-                .getScoresByUser(userDetails)
+                .getScoresByUser(username)
                 .stream()
                 .filter(score -> score.getQuizId().equals(quizId))
                 .collect(Collectors.toList());

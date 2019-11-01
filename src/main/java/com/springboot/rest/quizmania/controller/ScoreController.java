@@ -28,7 +28,7 @@ public class ScoreController {
     @PostMapping
     public ResponseEntity<?> addScore(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody Score score) {
         try {
-            Score newScore = service.addScore(userDetails, score);
+            Score newScore = service.addScore(userDetails.getUsername(), score);
             return new ResponseEntity<>(newScore, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -47,7 +47,7 @@ public class ScoreController {
     @GetMapping
     public ResponseEntity<?> getScoresByUserId(@AuthenticationPrincipal UserDetails userDetails) {
         try {
-            return new ResponseEntity<>(service.getScoresByUser(userDetails), HttpStatus.OK);
+            return new ResponseEntity<>(service.getScoresByUser(userDetails.getUsername()), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

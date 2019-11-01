@@ -31,7 +31,7 @@ public class QuizController {
 
     @PostMapping
     public ResponseEntity<?> addQuiz(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody Quiz quiz) {
-        Quiz newQuiz =  service.addQuiz(userDetails, quiz);
+        Quiz newQuiz =  service.addQuiz(userDetails.getUsername(), quiz);
         return new ResponseEntity<>(newQuiz, HttpStatus.OK);
     }
 
@@ -42,7 +42,7 @@ public class QuizController {
 
     @GetMapping
     public ResponseEntity<?> getAllUserQuizzes(@AuthenticationPrincipal UserDetails userDetails) {
-        return new ResponseEntity<>(service.getAllUserQuizzes(userDetails), HttpStatus.OK);
+        return new ResponseEntity<>(service.getAllUserQuizzes(userDetails.getUsername()), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

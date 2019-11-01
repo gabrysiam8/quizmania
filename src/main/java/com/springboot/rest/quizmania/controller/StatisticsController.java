@@ -25,7 +25,7 @@ public class StatisticsController {
                                          @RequestParam(value = "quizId", required = true) String quizId,
                                          @RequestParam(value = "global", required = true) boolean globalFlag) {
         try {
-            return new ResponseEntity<>(service.getQuizStatisticsById(userDetails, quizId, globalFlag), HttpStatus.OK);
+            return new ResponseEntity<>(service.getQuizStatisticsById(userDetails.getUsername(), quizId, globalFlag), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

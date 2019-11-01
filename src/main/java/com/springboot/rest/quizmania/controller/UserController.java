@@ -29,14 +29,14 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        UserDto userDto = service.getUserInfo(userDetails);
+        UserDto userDto = service.getUserInfo(userDetails.getUsername());
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @PutMapping("/me/password")
     public ResponseEntity<?> updateCurrentUserPassword(@AuthenticationPrincipal UserDetails currentUser, @Valid @RequestBody PasswordDto passwords) {
         try {
-            String msg = service.updateUserPassword(currentUser, passwords);
+            String msg = service.updateUserPassword(currentUser.getUsername(), passwords);
             return new ResponseEntity<>(msg, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -45,7 +45,7 @@ public class UserController {
 
     @DeleteMapping("/me")
     public ResponseEntity<?> deleteCurrentUser(@AuthenticationPrincipal UserDetails currentUser) {
-        String msg = service.deleteUser(currentUser);
+        String msg = service.deleteUser(currentUser.getUsername());
         return new ResponseEntity<>(msg, HttpStatus.OK);
     }
 
