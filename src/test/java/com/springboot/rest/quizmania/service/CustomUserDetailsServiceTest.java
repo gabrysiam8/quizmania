@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -54,5 +55,22 @@ public class CustomUserDetailsServiceTest {
         verify(userRepository, times(1)).findByUsername(anyString());
         assertNotNull(result);
         assertEquals(user.getUsername(), result.getUsername());
+    }
+
+    @Test
+    public void shouldThrowUsernameNotFoundExceptionWhenUserNotExist() {
+        //given
+        String username = "test";
+        exception.expect(UsernameNotFoundException.class);
+        exception.expectMessage("User not found");
+        when(userRepository.findByEmail(username)).thenReturn(null);
+        when(userRepository.findByUsername(username)).thenReturn(null);
+
+        //when
+        customUserDetailsService.loadUserByUsername(username);
+
+        //then
+        verify(userRepository, times(1)).findByEmail(anyString());
+        verify(userRepository, times(1)).findByUsername(anyString());
     }
 }
