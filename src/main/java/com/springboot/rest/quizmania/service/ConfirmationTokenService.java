@@ -12,7 +12,6 @@ public class ConfirmationTokenService {
 
     private final ConfirmationTokenRepository repository;
 
-
     public ConfirmationTokenService(ConfirmationTokenRepository repository) {
         this.repository = repository;
     }
