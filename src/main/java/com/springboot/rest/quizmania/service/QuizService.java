@@ -57,7 +57,7 @@ public class QuizService {
                 .map(quiz -> quiz
                         .getQuestionIds()
                         .stream()
-                        .map(questionId -> questionService.getQuestionById(questionId))
+                        .map(questionService::getQuestionById)
                         .collect(Collectors.toList())
                 )
                 .orElseThrow(() -> new IllegalArgumentException("No quiz with that id exists!"));

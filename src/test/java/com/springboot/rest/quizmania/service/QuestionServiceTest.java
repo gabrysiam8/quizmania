@@ -51,7 +51,7 @@ public class QuestionServiceTest {
     @Test
     public void shouldAddQuestion() {
         //given
-        when(questionRepository.save(question)).thenReturn(question);
+        when(questionRepository.save(any(Question.class))).thenReturn(question);
 
         //when
         Question result = questionService.addQuestion(question);
