@@ -1,5 +1,6 @@
 package com.springboot.rest.quizmania.controller;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import com.springboot.rest.quizmania.domain.CustomUser;
@@ -22,11 +23,8 @@ public class AuthController {
 
     private final AuthService service;
 
-    private final ConfirmationTokenService confirmationTokenService;
-
-    public AuthController(AuthService service, ConfirmationTokenService confirmationTokenService) {
+    public AuthController(AuthService service) {
         this.service = service;
-        this.confirmationTokenService = confirmationTokenService;
     }
 
     @PostMapping("/register")
@@ -36,6 +34,8 @@ public class AuthController {
             return new ResponseEntity<>("Account successfully created", HttpStatus.CREATED);
         } catch(IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (MessagingException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
         }
     }
 

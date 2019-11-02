@@ -10,6 +10,7 @@ import javax.mail.internet.MimeMessage;
 import com.springboot.rest.quizmania.config.JwtTokenProvider;
 import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import com.springboot.rest.quizmania.domain.CustomUser;
+import com.springboot.rest.quizmania.dto.EmailDto;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -67,7 +68,7 @@ public class AuthService {
         return repository.save(user);
     }
 
-    public CustomUser registerUser(CustomUser user) {
+    public CustomUser registerUser(CustomUser user) throws MessagingException {
         if(repository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("User with this email already exists!");
         }
@@ -87,20 +88,21 @@ public class AuthService {
         String link = "https://quizmania-app.herokuapp.com/confirmation?token="+confirmationToken.getToken();
         String content = "To confirm your account, please click here: <a href="+link+">verify</a>";
 
-        MimeMessage mail = emailSenderService.getSender().createMimeMessage();
+        EmailDto emailDto = EmailDto.builder()
+            .to(user.getEmail())
+            .replyTo("quizmania@no-reply.com")
+            .from("quizmania@no-reply.com")
+            .subject("Complete Registration")
+            .content(content)
+            .build();
+
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(mail, true);
-            helper.setTo(user.getEmail());
-            helper.setReplyTo("quizmania@no-reply.com");
-            helper.setFrom("quizmania@no-reply.com");
-            helper.setSubject("Complete Registration");
-            helper.setText(content, true);
+            MimeMessage mail = emailSenderService.createMimeMessage(emailDto);
+            emailSenderService.sendEmail(mail);
         } catch (MessagingException e) {
             repository.delete(savedUser);
-            e.printStackTrace();
+            throw e;
         }
-
-        emailSenderService.sendEmail(mail);
 
         return savedUser;
     }
@@ -137,7 +139,7 @@ public class AuthService {
         if ((confirmationToken.getExpirationDate().getTime() - cal.getTime().getTime()) <= 0) {
             throw new IllegalArgumentException("Token have expired.");
         }
-        this.enableUser(confirmationToken.getUser());
+        enableUser(confirmationToken.getUser());
         return "Account successfully verified.";
     }
 }
