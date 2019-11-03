@@ -6,7 +6,6 @@ import javax.validation.Valid;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.service.AuthService;
-import com.springboot.rest.quizmania.service.ConfirmationTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
