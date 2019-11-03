@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.domain.DifficultyLevel;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Quiz;
@@ -18,10 +17,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static com.springboot.rest.quizmania.common.TestData.ALL_QUIZZES;
+import static com.springboot.rest.quizmania.common.TestData.ENABLED_USER;
+import static com.springboot.rest.quizmania.common.TestData.QUIZ_ID;
+import static com.springboot.rest.quizmania.common.TestData.SAVED_PUBLIC_QUIZ;
+import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
+import static com.springboot.rest.quizmania.common.TestData.UNSAVED_QUIZ;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,81 +47,32 @@ public class QuizServiceTest {
 
     private QuizService quizService;
 
-    private Quiz quiz;
-
-    private Quiz savedQuiz;
-
-    private List<Quiz> allQuizzes;
-
-    private CustomUser author;
-
-    private static final String UNIQUE_USERNAME = "test";
-
-    private static final String QUIZ_ID = "testId-1234";
-
     @Before
     public void setUp() {
         quizService = new QuizService(quizRepository, authService, questionService);
-
-        quiz = Quiz.builder()
-            .title("test title")
-            .category("test category")
-            .level(DifficultyLevel.EASY)
-            .questionIds(List.of("q-123", "q-456", "q-789"))
-            .build();
-
-        savedQuiz = Quiz.builder()
-                   .id(QUIZ_ID)
-                   .title("test title")
-                   .category("test category")
-                   .level(DifficultyLevel.EASY)
-                   .isPublic(true)
-                   .questionIds(List.of("q-123", "q-456", "q-789"))
-                   .authorId("userId-098")
-                   .build();
-
-        Quiz privateQuiz = Quiz.builder()
-                        .id("testId-2345")
-                        .title("another test title")
-                        .category("test category")
-                        .level(DifficultyLevel.EASY)
-                        .isPublic(false)
-                        .questionIds(List.of("q-321", "q-654"))
-                        .authorId("userId-098")
-                        .build();
-
-        allQuizzes = List.of(savedQuiz, privateQuiz);
-
-        author = CustomUser.builder()
-                           .id("userId-098")
-                           .email("test@gmail.com")
-                           .username(UNIQUE_USERNAME)
-                           .password("pass")
-                           .enabled(true)
-                           .build();
     }
 
     @Test
     public void shouldAddQuiz() {
         //given
-        when(authService.findUserByUsername(anyString())).thenReturn(author);
-        when(quizRepository.save(any(Quiz.class))).thenReturn(savedQuiz);
+        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(quizRepository.save(any(Quiz.class))).thenReturn(SAVED_PUBLIC_QUIZ);
 
         //when
-        Quiz result = quizService.addQuiz(UNIQUE_USERNAME, quiz);
+        Quiz result = quizService.addQuiz(UNIQUE_USERNAME, UNSAVED_QUIZ);
 
         //then
         verify(authService, times(1)).findUserByUsername(anyString());
         verify(quizRepository, times(1)).save(any(Quiz.class));
         assertNotNull(result);
         assertEquals(QUIZ_ID, result.getId());
-        assertEquals(author.getId(), result.getAuthorId());
+        assertEquals(ENABLED_USER.getId(), result.getAuthorId());
     }
 
     @Test
     public void shouldGetQuizByIdWithoutFilteringWhenNoFieldGiven() throws JsonProcessingException {
         //given
-        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(savedQuiz));
+        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(SAVED_PUBLIC_QUIZ));
 
         //when
         String result = quizService.getQuizById(QUIZ_ID, null);
@@ -133,14 +88,14 @@ public class QuizServiceTest {
             + "\"level\":\"EASY\","
             + "\"isPublic\":true,"
             + "\"questionIds\":[\"q-123\",\"q-456\",\"q-789\"],"
-            + "\"authorId\":\"userId-098\"}";
+            + "\"authorId\":\"userId-1234\"}";
         assertEquals(expected, result);
     }
 
     @Test
     public void shouldGetQuizByIdWithFilteringWhenTitleFieldGiven() throws JsonProcessingException {
         //given
-        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(savedQuiz));
+        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(SAVED_PUBLIC_QUIZ));
 
         //when
         String result = quizService.getQuizById(QUIZ_ID, new String[]{"title"});
@@ -169,8 +124,8 @@ public class QuizServiceTest {
     @Test
     public void shouldGetQuizQuestionsById() {
         //given
-        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(savedQuiz));
-        List<Question> questions = createQuestions(savedQuiz.getQuestionIds());
+        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(SAVED_PUBLIC_QUIZ));
+        List<Question> questions = createQuestions(SAVED_PUBLIC_QUIZ.getQuestionIds());
         when(questionService.getQuestionById(anyString())).thenReturn(questions.get(0),questions.get(1),questions.get(2));
 
         //when
@@ -180,16 +135,16 @@ public class QuizServiceTest {
         verify(quizRepository, times(1)).findById(anyString());
         verify(questionService, times(3)).getQuestionById(anyString());
         assertNotNull(result);
-        int expectedSize = savedQuiz.getQuestionIds().size();
+        int expectedSize = SAVED_PUBLIC_QUIZ.getQuestionIds().size();
         assertEquals(expectedSize, result.size());
         for (int i=0; i<expectedSize; i++)
-            assertEquals(savedQuiz.getQuestionIds().get(i), result.get(i).getId());
+            assertEquals(SAVED_PUBLIC_QUIZ.getQuestionIds().get(i), result.get(i).getId());
     }
 
     @Test
     public void shouldGetAllPublicQuizzes() {
         //given
-        when(quizRepository.findAll()).thenReturn(allQuizzes);
+        when(quizRepository.findAll()).thenReturn(ALL_QUIZZES);
 
         //when
         List<Quiz> result = quizService.getAllPublicQuizzes();
@@ -204,8 +159,8 @@ public class QuizServiceTest {
     @Test
     public void shouldGetAllUserQuizzes() {
         //given
-        when(authService.findUserByUsername(anyString())).thenReturn(author);
-        when(quizRepository.findAll()).thenReturn(allQuizzes);
+        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(quizRepository.findAll()).thenReturn(ALL_QUIZZES);
 
         //when
         List<Quiz> result = quizService.getAllUserQuizzes(UNIQUE_USERNAME);
@@ -215,7 +170,7 @@ public class QuizServiceTest {
         verify(quizRepository, times(1)).findAll();
         assertNotNull(result);
         assertEquals(2, result.size());
-        result.forEach(quiz -> assertEquals(author.getId(), quiz.getAuthorId()));
+        result.forEach(quiz -> assertEquals(ENABLED_USER.getId(), quiz.getAuthorId()));
     }
 
     @Test
@@ -229,7 +184,7 @@ public class QuizServiceTest {
                               .questionIds(List.of("q-123", "q-456", "q-789"))
                               .authorId("userId-098")
                               .build();
-        when(quizRepository.findById(QUIZ_ID)).thenReturn(Optional.ofNullable(savedQuiz));
+        when(quizRepository.findById(QUIZ_ID)).thenReturn(Optional.ofNullable(SAVED_PUBLIC_QUIZ));
         when(quizRepository.save(any(Quiz.class))).thenReturn(quizUpdate);
         //when
         Quiz result = quizService.updateQuiz(QUIZ_ID, quizUpdate);

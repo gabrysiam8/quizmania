@@ -16,6 +16,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static com.springboot.rest.quizmania.common.TestData.ENABLED_USER;
+import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,28 +48,15 @@ public class UserServiceTest {
 
     private UserService userService;
 
-    private CustomUser user;
-
-    private static final String UNIQUE_USERNAME = "test";
-
     @Before
     public void setUp() {
         userService = new UserService(userRepository, passwordEncoder, quizService, scoreService);
-
-        user = CustomUser.builder()
-            .id("test-1234")
-            .email("test@gmail.com")
-            .username(UNIQUE_USERNAME)
-            .password("pass")
-             .role("USER")
-            .enabled(true)
-            .build();
     }
 
     @Test
     public void shouldReturnUserInfo() {
         //given
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(user);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
         when(quizService.getAllUserQuizzes(UNIQUE_USERNAME)).thenReturn(Collections.emptyList());
         when(scoreService.getScoresByUser(UNIQUE_USERNAME)).thenReturn(Collections.emptyList());
 
@@ -79,7 +68,7 @@ public class UserServiceTest {
         verify(quizService, times(1)).getAllUserQuizzes(anyString());
         verify(scoreService, times(1)).getScoresByUser(anyString());
         assertNotNull(result);
-        assertEquals(user.getEmail(), result.getEmail());
+        assertEquals(ENABLED_USER.getEmail(), result.getEmail());
         assertEquals(0, result.getQuizAddedNumber());
         assertEquals(0, result.getQuizAttemptsNumber());
     }
@@ -104,7 +93,7 @@ public class UserServiceTest {
     public void shouldThrowNullPointerExceptionWhenQuizServiceReturnNull() {
         //given
         exception.expect(NullPointerException.class);
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(user);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
         when(quizService.getAllUserQuizzes(UNIQUE_USERNAME)).thenReturn(null);
 
         //when
@@ -120,7 +109,7 @@ public class UserServiceTest {
     public void shouldThrowNullPointerExceptionWhenScoreServiceReturnNull() {
         //given
         exception.expect(NullPointerException.class);
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(user);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
         when(quizService.getAllUserQuizzes(UNIQUE_USERNAME)).thenReturn(Collections.emptyList());
         when(scoreService.getScoresByUser(UNIQUE_USERNAME)).thenReturn(null);
 
@@ -139,8 +128,8 @@ public class UserServiceTest {
         String oldPassword = "pass";
         String newPassword = "newPass";
         PasswordDto passwordDto = new PasswordDto(oldPassword, newPassword, newPassword);
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(user);
-        when(passwordEncoder.matches(passwordDto.getOldPassword(), user.getPassword())).thenReturn(true);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
+        when(passwordEncoder.matches(passwordDto.getOldPassword(), ENABLED_USER.getPassword())).thenReturn(true);
 
         //when
         String result = userService.updateUserPassword(UNIQUE_USERNAME, passwordDto);
@@ -162,8 +151,8 @@ public class UserServiceTest {
         PasswordDto passwordDto = new PasswordDto(oldPassword, newPassword, newPassword);
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Wrong password!");
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(user);
-        when(passwordEncoder.matches(passwordDto.getOldPassword(), user.getPassword())).thenReturn(false);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
+        when(passwordEncoder.matches(passwordDto.getOldPassword(), ENABLED_USER.getPassword())).thenReturn(false);
 
         //when
         userService.updateUserPassword(UNIQUE_USERNAME, passwordDto);
@@ -183,8 +172,8 @@ public class UserServiceTest {
         PasswordDto passwordDto = new PasswordDto(oldPassword, newPassword, "invalidConfirmation");
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("The Password confirmation must match New password!");
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(user);
-        when(passwordEncoder.matches(passwordDto.getOldPassword(), user.getPassword())).thenReturn(true);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
+        when(passwordEncoder.matches(passwordDto.getOldPassword(), ENABLED_USER.getPassword())).thenReturn(true);
 
         //when
         userService.updateUserPassword(UNIQUE_USERNAME, passwordDto);
@@ -199,7 +188,7 @@ public class UserServiceTest {
     @Test
     public void shouldDeleteUser() {
         //given
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(user);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
 
         //when
         String result = userService.deleteUser(UNIQUE_USERNAME);

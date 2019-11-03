@@ -1,6 +1,5 @@
 package com.springboot.rest.quizmania.service;
 
-import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,6 +11,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import static com.springboot.rest.quizmania.common.TestData.ENABLED_USER;
+import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -37,37 +38,29 @@ public class CustomUserDetailsServiceTest {
     @Test
     public void shouldLoadUser() {
         //given
-        String username = "test";
-        CustomUser user = CustomUser.builder()
-                         .email("test@gmail.com")
-                         .username(username)
-                         .password("pass")
-                         .role("USER")
-                         .build();
-        when(userRepository.findByEmail(username)).thenReturn(null);
-        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(userRepository.findByEmail(anyString())).thenReturn(null);
+        when(userRepository.findByUsername(anyString())).thenReturn(ENABLED_USER);
 
         //when
-        UserDetails result = customUserDetailsService.loadUserByUsername(username);
+        UserDetails result = customUserDetailsService.loadUserByUsername(UNIQUE_USERNAME);
 
         //then
         verify(userRepository, times(1)).findByEmail(anyString());
         verify(userRepository, times(1)).findByUsername(anyString());
         assertNotNull(result);
-        assertEquals(user.getUsername(), result.getUsername());
+        assertEquals(UNIQUE_USERNAME, result.getUsername());
     }
 
     @Test
     public void shouldThrowUsernameNotFoundExceptionWhenUserNotExist() {
         //given
-        String username = "test";
         exception.expect(UsernameNotFoundException.class);
         exception.expectMessage("User not found");
-        when(userRepository.findByEmail(username)).thenReturn(null);
-        when(userRepository.findByUsername(username)).thenReturn(null);
+        when(userRepository.findByEmail(UNIQUE_USERNAME)).thenReturn(null);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(null);
 
         //when
-        customUserDetailsService.loadUserByUsername(username);
+        customUserDetailsService.loadUserByUsername(UNIQUE_USERNAME);
 
         //then
         verify(userRepository, times(1)).findByEmail(anyString());

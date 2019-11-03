@@ -24,6 +24,10 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static com.springboot.rest.quizmania.common.TestData.DISABLED_USER;
+import static com.springboot.rest.quizmania.common.TestData.ENABLED_USER;
+import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
+import static com.springboot.rest.quizmania.common.TestData.USER_ID;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -60,12 +64,6 @@ public class AuthServiceTest {
 
     private CustomUser user;
 
-    private CustomUser savedUser;
-
-    private static final String UNIQUE_USERNAME = "test";
-
-    private static final String UNIQUE_ID = "testId-1234";
-
     @Before
     public void setUp() {
         authService = new AuthService(userRepository, authenticationManager, passwordEncoder, tokenProvider, confirmationTokenService, emailSenderService);
@@ -75,19 +73,12 @@ public class AuthServiceTest {
                          .username(UNIQUE_USERNAME)
                          .password("pass")
                          .build();
-
-        savedUser = CustomUser.builder()
-                         .id(UNIQUE_ID)
-                         .email("test@gmail.com")
-                         .username(UNIQUE_USERNAME)
-                         .password("pass")
-                         .build();
     }
 
     @Test
     public void shouldFindUserByUsername() {
         //given
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(savedUser);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(DISABLED_USER);
 
         //when
         CustomUser result = authService.findUserByUsername(UNIQUE_USERNAME);
@@ -117,8 +108,8 @@ public class AuthServiceTest {
         //given
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
-        when(userRepository.save(any(CustomUser.class))).thenReturn(savedUser);
-        when(confirmationTokenService.createToken(savedUser)).thenReturn(new ConfirmationToken("token", savedUser));
+        when(userRepository.save(any(CustomUser.class))).thenReturn(DISABLED_USER);
+        when(confirmationTokenService.createToken(any(CustomUser.class))).thenReturn(new ConfirmationToken("token", DISABLED_USER));
         when(emailSenderService.createMimeMessage(any(EmailDto.class))).thenReturn(new MimeMessage((Session) null));
 
         //when
@@ -132,7 +123,7 @@ public class AuthServiceTest {
         verify(emailSenderService, times(1)).createMimeMessage(any(EmailDto.class));
         verify(emailSenderService, times(1)).sendEmail(any(MimeMessage.class));
         assertNotNull(result);
-        assertEquals(UNIQUE_ID, result.getId());
+        assertEquals(USER_ID, result.getId());
         assertEquals(UNIQUE_USERNAME, result.getUsername());
     }
 
@@ -181,8 +172,8 @@ public class AuthServiceTest {
         exception.expect(NullPointerException.class);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
-        when(userRepository.save(any(CustomUser.class))).thenReturn(savedUser);
-        when(confirmationTokenService.createToken(savedUser)).thenReturn(null);
+        when(userRepository.save(any(CustomUser.class))).thenReturn(DISABLED_USER);
+        when(confirmationTokenService.createToken(any(CustomUser.class))).thenReturn(null);
 
         //when
         authService.registerUser(user);
@@ -202,8 +193,8 @@ public class AuthServiceTest {
         exception.expect(MessagingException.class);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
-        when(userRepository.save(any(CustomUser.class))).thenReturn(savedUser);
-        when(confirmationTokenService.createToken(savedUser)).thenReturn(new ConfirmationToken("token", savedUser));
+        when(userRepository.save(any(CustomUser.class))).thenReturn(DISABLED_USER);
+        when(confirmationTokenService.createToken(any(CustomUser.class))).thenReturn(new ConfirmationToken("token", DISABLED_USER));
         when(emailSenderService.createMimeMessage(any(EmailDto.class))).thenThrow(MessagingException.class);
 
         //when
@@ -222,12 +213,11 @@ public class AuthServiceTest {
     @Test
     public void shouldLoginUser(){
         //given
-        savedUser.setEnabled(true);
         UserLoginDto loginDto = createLoginDto();
         String token = "secrettoken";
 
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(savedUser);
-        when(tokenProvider.generateToken(savedUser)).thenReturn(token);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
+        when(tokenProvider.generateToken(ENABLED_USER)).thenReturn(token);
 
         //when
         Map<String,String> result = authService.loginUser(loginDto);
@@ -245,7 +235,7 @@ public class AuthServiceTest {
         exception.expect(DisabledException.class);
         exception.expectMessage("User account is locked!");
         UserLoginDto loginDto = createLoginDto();
-        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(savedUser);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(DISABLED_USER);
 
         //when
         authService.loginUser(loginDto);
@@ -266,7 +256,7 @@ public class AuthServiceTest {
     public void shouldConfirmUserAccount() {
         //given
         String token = "secrettoken";
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, savedUser);
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, DISABLED_USER);
 
         when(confirmationTokenService.getConfirmationToken(anyString())).thenReturn(confirmationToken);
 
@@ -276,7 +266,6 @@ public class AuthServiceTest {
         //then
         verify(confirmationTokenService, times(1)).getConfirmationToken(anyString());
         assertNotNull(result);
-        assertTrue(savedUser.isEnabled());
         assertEquals(result, "Account successfully verified.");
     }
 
@@ -302,7 +291,7 @@ public class AuthServiceTest {
         exception.expectMessage("Token have expired.");
 
         String token = "secrettoken";
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, savedUser);
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, DISABLED_USER);
         confirmationToken.setExpirationDate(Calendar.getInstance().getTime());
 
         when(confirmationTokenService.getConfirmationToken(anyString())).thenReturn(confirmationToken);

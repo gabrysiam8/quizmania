@@ -1,7 +1,6 @@
 package com.springboot.rest.quizmania.service;
 
 import com.springboot.rest.quizmania.domain.ConfirmationToken;
-import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.repository.ConfirmationTokenRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +8,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static com.springboot.rest.quizmania.common.TestData.CONFIRMATION_TOKEN;
+import static com.springboot.rest.quizmania.common.TestData.DISABLED_USER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,19 +28,11 @@ public class ConfirmationTokenServiceTest {
 
     private ConfirmationToken confirmationToken;
 
-    private static final CustomUser USER = CustomUser.builder()
-                                .email("test@gmail.com")
-                                .username("test")
-                                .password("pass")
-                                .build();
-
-    private static final String TOKEN = "token-1234";
-
     @Before
     public void setUp() {
         tokenService = new ConfirmationTokenService(tokenRepository);
 
-        confirmationToken = new ConfirmationToken(TOKEN, USER);
+        confirmationToken = new ConfirmationToken(CONFIRMATION_TOKEN, DISABLED_USER);
     }
 
     @Test
@@ -48,26 +41,26 @@ public class ConfirmationTokenServiceTest {
         when(tokenRepository.save(any(ConfirmationToken.class))).thenReturn(confirmationToken);
 
         //when
-        ConfirmationToken result = tokenService.createToken(USER);
+        ConfirmationToken result = tokenService.createToken(DISABLED_USER);
 
         //then
         verify(tokenRepository, times(1)).save(any(ConfirmationToken.class));
         assertNotNull(result);
-        assertEquals(TOKEN, result.getToken());
+        assertEquals(CONFIRMATION_TOKEN, result.getToken());
     }
 
     @Test
     public void shouldReturnToken() {
         //given
 
-        when(tokenRepository.findByToken(TOKEN)).thenReturn(confirmationToken);
+        when(tokenRepository.findByToken(CONFIRMATION_TOKEN)).thenReturn(confirmationToken);
 
         //when
-        ConfirmationToken result = tokenService.getConfirmationToken(TOKEN);
+        ConfirmationToken result = tokenService.getConfirmationToken(CONFIRMATION_TOKEN);
 
         //then
         verify(tokenRepository, times(1)).findByToken(anyString());
         assertNotNull(result);
-        assertEquals(TOKEN, result.getToken());
+        assertEquals(CONFIRMATION_TOKEN, result.getToken());
     }
 }

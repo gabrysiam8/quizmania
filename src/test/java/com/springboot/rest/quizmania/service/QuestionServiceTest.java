@@ -13,6 +13,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static com.springboot.rest.quizmania.common.TestData.QUESTION;
+import static com.springboot.rest.quizmania.common.TestData.QUESTION_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,40 +34,29 @@ public class QuestionServiceTest {
 
     private QuestionService questionService;
 
-    private Question question;
-
-    private static final String QUESTION_ID = "question-1234";
-
     @Before
     public void setUp() {
         questionService = new QuestionService(questionRepository);
-
-        question = Question.builder()
-                         .id(QUESTION_ID)
-                         .question("test question")
-                         .answers(List.of("a","b", "c"))
-                         .correctAnswer("a")
-                         .build();
     }
 
     @Test
     public void shouldAddQuestion() {
         //given
-        when(questionRepository.save(any(Question.class))).thenReturn(question);
+        when(questionRepository.save(any(Question.class))).thenReturn(QUESTION);
 
         //when
-        Question result = questionService.addQuestion(question);
+        Question result = questionService.addQuestion(QUESTION);
 
         //then
         verify(questionRepository, times(1)).save(any(Question.class));
         assertNotNull(result);
-        assertEquals(question, result);
+        assertEquals(QUESTION, result);
     }
 
     @Test
     public void shouldReturnQuestion() {
         //given
-        when(questionRepository.findById(QUESTION_ID)).thenReturn(Optional.ofNullable(question));
+        when(questionRepository.findById(QUESTION_ID)).thenReturn(Optional.ofNullable(QUESTION));
 
         //when
         Question result = questionService.getQuestionById(QUESTION_ID);
@@ -73,7 +64,7 @@ public class QuestionServiceTest {
         //then
         verify(questionRepository, times(1)).findById(anyString());
         assertNotNull(result);
-        assertEquals(question, result);
+        assertEquals(QUESTION, result);
     }
 
     @Test
@@ -94,9 +85,13 @@ public class QuestionServiceTest {
     @Test
     public void shouldUpdateQuestion() {
         //given
-        Question questionUpdate = question;
-        questionUpdate.setQuestion("updated question");
-        when(questionRepository.findById(QUESTION_ID)).thenReturn(Optional.ofNullable(question));
+        Question questionUpdate = Question.builder()
+                                          .id(QUESTION_ID)
+                                          .question("updated question")
+                                          .answers(List.of("a","b", "c"))
+                                          .correctAnswer("a")
+                                          .build();
+        when(questionRepository.findById(QUESTION_ID)).thenReturn(Optional.ofNullable(QUESTION));
         when(questionRepository.save(questionUpdate)).thenReturn(questionUpdate);
 
         //when

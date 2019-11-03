@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Score;
 import com.springboot.rest.quizmania.repository.ScoreRepository;
@@ -18,6 +17,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static com.springboot.rest.quizmania.common.TestData.ENABLED_USER;
+import static com.springboot.rest.quizmania.common.TestData.QUIZ_ID;
+import static com.springboot.rest.quizmania.common.TestData.SAVED_SCORE;
+import static com.springboot.rest.quizmania.common.TestData.SCORE_ID;
+import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
+import static com.springboot.rest.quizmania.common.TestData.USER_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,42 +48,9 @@ public class ScoreServiceTest {
 
     private ScoreService scoreService;
 
-    private Score savedScore;
-
-    private CustomUser user;
-
-    private static final String UNIQUE_USERNAME = "test";
-    private static final String SCORE_ID = "scoreId-1234";
-    private static final String QUIZ_ID = "quizId-1234";
-
     @Before
     public void setUp() {
         scoreService = new ScoreService(scoreRepository, authService, questionService);
-
-        long elapsedTime = 12000;
-        Date endDate = new Date();
-        Date startDate = new Date(endDate.getTime()-elapsedTime);
-
-        savedScore = Score.builder()
-                     .id(SCORE_ID)
-                     .quizId(QUIZ_ID)
-                     .userId("userId-1234")
-                     .startDate(startDate)
-                     .endDate(endDate)
-                     .elapsedTimeInMs(elapsedTime)
-                     .userAnswers(Map.of("qId-1", "good answer", "qId-2", "bad answer"))
-                     .goodAnswers(1)
-                     .allAnswers(2)
-                     .percentageScore(50)
-                     .build();
-
-        user = CustomUser.builder()
-                           .id("userId-1234")
-                           .email("test@gmail.com")
-                           .username(UNIQUE_USERNAME)
-                           .password("pass")
-                           .enabled(true)
-                           .build();
     }
 
     @Test
@@ -86,15 +58,15 @@ public class ScoreServiceTest {
         //given
         Score score = Score.builder()
                      .quizId(QUIZ_ID)
-                     .startDate(savedScore.getStartDate())
-                     .endDate(savedScore.getEndDate())
+                     .startDate(SAVED_SCORE.getStartDate())
+                     .endDate(SAVED_SCORE.getEndDate())
                      .userAnswers(Map.of("qId-1", "good answer", "qId-2", "bad answer"))
                      .build();
-        when(authService.findUserByUsername(anyString())).thenReturn(user);
+        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
         List<Question> questions = new ArrayList<>();
         score.getUserAnswers().keySet().forEach(id -> questions.add(createQuestion(id)));
         when(questionService.getQuestionById(anyString())).thenReturn(questions.get(0), questions.get(1));
-        when(scoreRepository.save(any(Score.class))).thenReturn(savedScore);
+        when(scoreRepository.save(any(Score.class))).thenReturn(SAVED_SCORE);
 
         //when
         Score result = scoreService.addScore(UNIQUE_USERNAME, score);
@@ -106,13 +78,13 @@ public class ScoreServiceTest {
         assertNotNull(result);
         System.out.println(result);
         assertEquals(SCORE_ID, result.getId());
-        assertEquals(user.getId(), result.getUserId());
+        assertEquals(USER_ID, result.getUserId());
     }
 
     @Test
     public void shouldGetScoreById() {
         //given
-        when(scoreRepository.findById(anyString())).thenReturn(Optional.ofNullable(savedScore));
+        when(scoreRepository.findById(anyString())).thenReturn(Optional.ofNullable(SAVED_SCORE));
 
         //when
         Score result = scoreService.getScoreById(SCORE_ID);
@@ -122,7 +94,7 @@ public class ScoreServiceTest {
         assertNotNull(result);
         assertEquals(SCORE_ID, result.getId());
         assertEquals(QUIZ_ID, result.getQuizId());
-        assertEquals(savedScore.getUserId(), result.getUserId());
+        assertEquals(SAVED_SCORE.getUserId(), result.getUserId());
     }
 
     @Test
@@ -142,8 +114,8 @@ public class ScoreServiceTest {
     @Test
     public void shouldGetScoresByUser() {
         //given
-        when(authService.findUserByUsername(anyString())).thenReturn(user);
-        when(scoreRepository.getScoresByUserId(anyString())).thenReturn(List.of(savedScore));
+        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(scoreRepository.getScoresByUserId(anyString())).thenReturn(List.of(SAVED_SCORE));
 
         //when
         List<Score> result = scoreService.getScoresByUser(UNIQUE_USERNAME);
@@ -153,7 +125,7 @@ public class ScoreServiceTest {
         verify(scoreRepository, times(1)).getScoresByUserId(anyString());
         assertNotNull(result);
         assertEquals(1, result.size());
-        result.forEach(score -> assertEquals(user.getId(), score.getUserId()));
+        result.forEach(score -> assertEquals(USER_ID, score.getUserId()));
     }
 
     @Test
@@ -169,7 +141,7 @@ public class ScoreServiceTest {
                               .userAnswers(Map.of("qId-1", "bad answer", "qId-2", "bad answer"))
                               .build();
 
-        when(scoreRepository.getScoresByQuizId(anyString())).thenReturn(List.of(savedScore, newScore));
+        when(scoreRepository.getScoresByQuizId(anyString())).thenReturn(List.of(SAVED_SCORE, newScore));
 
         //when
         List<Score> result = scoreService.getScoresByQuizId(QUIZ_ID);

@@ -10,7 +10,6 @@ import javax.mail.MessagingException;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.service.AuthService;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.springboot.rest.quizmania.common.TestData.DISABLED_USER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -43,21 +43,9 @@ public class AuthControllerTest {
     @MockBean
     private AuthService service;
 
-    private CustomUser savedUser;
-
-    @Before
-    public void setUp() {
-        savedUser = CustomUser.builder()
-                         .id("userId-098")
-                         .email("test@gmail.com")
-                         .username("test")
-                         .password("pass")
-                         .build();
-    }
-
     @Test
     public void shouldReturnSuccessMessageWhenAccountCreated() throws Exception {
-        given(service.registerUser(any(CustomUser.class))).willReturn(savedUser);
+        given(service.registerUser(any(CustomUser.class))).willReturn(DISABLED_USER);
 
         mockMvc.perform(post("/auth/register")
             .content(readFile("requests/user.json"))
