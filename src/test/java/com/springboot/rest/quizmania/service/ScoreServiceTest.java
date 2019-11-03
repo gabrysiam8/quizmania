@@ -43,8 +43,6 @@ public class ScoreServiceTest {
 
     private ScoreService scoreService;
 
-    private Score score;
-
     private Score savedScore;
 
     private CustomUser user;
@@ -60,13 +58,6 @@ public class ScoreServiceTest {
         long elapsedTime = 12000;
         Date endDate = new Date();
         Date startDate = new Date(endDate.getTime()-elapsedTime);
-
-        score = Score.builder()
-            .quizId("quizId-1234")
-            .startDate(startDate)
-            .endDate(endDate)
-            .userAnswers(Map.of("qId-1", "good answer", "qId-2", "bad answer"))
-            .build();
 
         savedScore = Score.builder()
                      .id(SCORE_ID)
@@ -93,6 +84,12 @@ public class ScoreServiceTest {
     @Test
     public void shouldAddScore() {
         //given
+        Score score = Score.builder()
+                     .quizId(QUIZ_ID)
+                     .startDate(savedScore.getStartDate())
+                     .endDate(savedScore.getEndDate())
+                     .userAnswers(Map.of("qId-1", "good answer", "qId-2", "bad answer"))
+                     .build();
         when(authService.findUserByUsername(anyString())).thenReturn(user);
         List<Question> questions = new ArrayList<>();
         score.getUserAnswers().keySet().forEach(id -> questions.add(createQuestion(id)));

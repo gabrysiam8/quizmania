@@ -7,7 +7,6 @@ import java.util.stream.DoubleStream;
 import com.springboot.rest.quizmania.domain.Score;
 import com.springboot.rest.quizmania.dto.ScoreDto;
 import com.springboot.rest.quizmania.dto.StatisticsDto;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
