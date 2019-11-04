@@ -1,0 +1,9 @@
+{
+  "quizId": "testId-1234",
+  "startDate": 1572868200000,
+  "endDate": 1572868212000,
+  "userAnswers": {
+    "qId-1": "good answer",
+    "qId-2": "bad answer"
+  }
+}

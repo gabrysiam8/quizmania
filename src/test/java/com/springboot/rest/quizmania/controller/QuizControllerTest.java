@@ -1,8 +1,5 @@
 package com.springboot.rest.quizmania.controller;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +24,7 @@ import static com.springboot.rest.quizmania.common.TestData.QUIZ_ID;
 import static com.springboot.rest.quizmania.common.TestData.SAVED_PUBLIC_QUIZ;
 import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
 import static com.springboot.rest.quizmania.common.TestData.USER_ID;
+import static com.springboot.rest.quizmania.common.TestUtils.readFile;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -192,7 +189,7 @@ public class QuizControllerTest {
             .contentType(APPLICATION_JSON))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id").value(QUIZ_ID))
-               .andExpect(jsonPath("$.title").value("updated title"));
+               .andExpect(jsonPath("$.title").value(quizUpdate.getTitle()));
     }
 
     @Test
@@ -202,11 +199,21 @@ public class QuizControllerTest {
 
         mockMvc.perform(delete("/quiz/"+QUESTION_ID))
                .andExpect(status().isOk())
-               .andExpect(content().string("Quiz successfully deleted"));;
+               .andExpect(content().string("Quiz successfully deleted"));
     }
 
     @Test
-    public void getAllQuizLevels() {
+    public void shouldReturnAllQuizLevels() throws Exception {
+        List<String> levels = List.of("EASY", "NORMAL", "HARD", "EXPERT");
+        given(service.getQuizDifficultyLevels()).willReturn(levels);
+
+        mockMvc.perform(get("/quiz/level"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.length()").value(4))
+               .andExpect(jsonPath("$[0]").value(levels.get(0)))
+               .andExpect(jsonPath("$[1]").value(levels.get(1)))
+               .andExpect(jsonPath("$[2]").value(levels.get(2)))
+               .andExpect(jsonPath("$[3]").value(levels.get(3)));
     }
 
     private List<Question> createQuestions(List<String> ids) {
@@ -219,9 +226,5 @@ public class QuizControllerTest {
                                .correctAnswer("a")
                                .build())
             .collect(Collectors.toList());
-    }
-
-    private String readFile(String filename) throws IOException {
-        return Files.readString(Paths.get(new ClassPathResource(filename).getURI()));
     }
 }

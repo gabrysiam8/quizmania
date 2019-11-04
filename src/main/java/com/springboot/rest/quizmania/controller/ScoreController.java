@@ -45,7 +45,7 @@ public class ScoreController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getScoresByUserId(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getAllUserScores(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             return new ResponseEntity<>(service.getScoresByUser(userDetails.getUsername()), HttpStatus.OK);
         } catch (IllegalArgumentException e) {

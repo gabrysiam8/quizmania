@@ -1,5 +1,6 @@
 package com.springboot.rest.quizmania.common;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class TestData {
 
     public static final String SCORE_ID = "scoreId-1234";
 
-    private static final Date endDate = new Date();
+    public static final Date endDate = Date.from( Instant.ofEpochSecond( 1572868212 ) );
 
     public static final Score SAVED_SCORE = Score.builder()
                                                  .id(SCORE_ID)
