@@ -111,6 +111,6 @@ public class QuestionControllerTest {
 
         mockMvc.perform(delete("/question/"+QUESTION_ID))
                .andExpect(status().isOk())
-               .andExpect(content().string("Question successfully deleted"));;
+               .andExpect(content().string("Question successfully deleted"));
     }
 }
