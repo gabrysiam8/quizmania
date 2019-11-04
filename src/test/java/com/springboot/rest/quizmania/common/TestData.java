@@ -51,6 +51,7 @@ public class TestData {
                                                 .title("test title")
                                                 .category("test category")
                                                 .level(DifficultyLevel.EASY)
+                                                .isPublic(true)
                                                 .questionIds(List.of("q-123", "q-456", "q-789"))
                                                 .build();
 

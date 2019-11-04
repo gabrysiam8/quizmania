@@ -46,11 +46,10 @@ public class QuizController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getQuizById(@PathVariable(value="id") String id, @RequestParam(value = "fields", required = false) String[] fields)
-        throws JsonProcessingException {
+    public ResponseEntity<?> getQuizById(@PathVariable(value="id") String id, @RequestParam(value = "fields", required = false) String[] fields) {
         try {
             return new ResponseEntity<>(service.getQuizById(id, fields), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | JsonProcessingException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -65,7 +64,7 @@ public class QuizController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateQuestion(@PathVariable(value="id") String id, @Valid @RequestBody Quiz quiz) {
+    public ResponseEntity<?> updateQuiz(@PathVariable(value="id") String id, @Valid @RequestBody Quiz quiz) {
         try {
             return new ResponseEntity<>(service.updateQuiz(id, quiz), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -74,7 +73,7 @@ public class QuizController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteQuestion(@PathVariable(value="id") String id) {
+    public ResponseEntity<?> deleteQuiz(@PathVariable(value="id") String id) {
         try {
             String msg = service.deleteQuiz(id);
             return new ResponseEntity<>(msg, HttpStatus.OK);

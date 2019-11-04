@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.springboot.rest.quizmania.common.TestData.QUESTION;
 import static com.springboot.rest.quizmania.common.TestData.QUESTION_ID;
+import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -44,7 +45,7 @@ public class QuestionControllerTest {
     private QuestionService service;
 
     @Test
-    @WithMockUser(username="user")
+    @WithMockUser(username=UNIQUE_USERNAME)
     public void shouldReturnNewQuestionWhenSuccessfullyAdded() throws Exception {
         given(service.addQuestion(any(Question.class))).willReturn(QUESTION);
 
@@ -57,7 +58,7 @@ public class QuestionControllerTest {
     }
 
     @Test
-    @WithMockUser(username="user")
+    @WithMockUser(username=UNIQUE_USERNAME)
     public void shouldReturnBadRequestWhenInvalidQuestionContent() throws Exception {
         given(service.addQuestion(any(Question.class))).willReturn(QUESTION);
 
@@ -67,12 +68,7 @@ public class QuestionControllerTest {
                .andExpect(status().isBadRequest());
     }
 
-    private String readFile(String filename) throws IOException {
-        return Files.readString(Paths.get(new ClassPathResource(filename).getURI()));
-    }
-
     @Test
-    @WithMockUser(username="user")
     public void shouldReturnQuestionWhenIdExist() throws Exception {
         given(service.getQuestionById(anyString())).willReturn(QUESTION);
 
@@ -83,7 +79,6 @@ public class QuestionControllerTest {
     }
 
     @Test
-    @WithMockUser(username="user")
     public void shouldReturnBadRequestWhenIdNotExist() throws Exception {
         Exception expectedException = new IllegalArgumentException("No question with that id exists!");
         given(service.getQuestionById(anyString())).willThrow(expectedException);
@@ -94,7 +89,7 @@ public class QuestionControllerTest {
     }
 
     @Test
-    @WithMockUser(username="user")
+    @WithMockUser(username=UNIQUE_USERNAME)
     public void shouldReturnUpdatedQuestionWhenIdExist() throws Exception {
         Question questionUpdate = Question.builder()
                                     .id(QUESTION_ID)
@@ -113,12 +108,16 @@ public class QuestionControllerTest {
     }
 
     @Test
-    @WithMockUser(username="user")
+    @WithMockUser(username=UNIQUE_USERNAME)
     public void shouldReturnSuccessDeleteMessageWhenIdExist() throws Exception {
         given(service.deleteQuestion(anyString())).willReturn("Question successfully deleted");
 
         mockMvc.perform(delete("/question/"+QUESTION_ID))
                .andExpect(status().isOk())
                .andExpect(content().string("Question successfully deleted"));;
+    }
+
+    private String readFile(String filename) throws IOException {
+        return Files.readString(Paths.get(new ClassPathResource(filename).getURI()));
     }
 }

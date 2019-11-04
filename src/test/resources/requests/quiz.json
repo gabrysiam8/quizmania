@@ -1,0 +1,6 @@
+{
+  "title": "test title",
+  "category": "test category",
+  "level": "EASY",
+  "questionIds": ["q-123","q-456", "q-789"]
+}

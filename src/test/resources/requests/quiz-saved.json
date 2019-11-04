@@ -1,0 +1,10 @@
+{
+  "id":"testId-1234",
+  "title":"test title",
+  "category":"test category",
+  "description":null,
+  "level":"EASY",
+  "isPublic":true,
+  "questionIds":["q-123","q-456","q-789"],
+  "authorId":"userId-1234"
+}
