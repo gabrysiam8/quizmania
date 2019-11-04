@@ -8,6 +8,7 @@ import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +34,8 @@ public class AuthController {
             return new ResponseEntity<>("Account successfully created", HttpStatus.CREATED);
         } catch(IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        } catch (MessagingException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        } catch (MessagingException | MailSendException e) {
+            return new ResponseEntity<>("Failed to send verification e-mail!", HttpStatus.BAD_GATEWAY);
         }
     }
 
