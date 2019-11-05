@@ -25,8 +25,10 @@ public class ScoreService {
     }
 
     public Score addScore(String username, Score score) {
-        CustomUser currentUser = authService.findUserByUsername(username);
-        score.setUserId(currentUser.getId());
+        if(username != null) {
+            CustomUser currentUser = authService.findUserByUsername(username);
+            score.setUserId(currentUser.getId());
+        }
 
         score.setElapsedTimeInMs(score.getEndDate().getTime()-score.getStartDate().getTime());
 

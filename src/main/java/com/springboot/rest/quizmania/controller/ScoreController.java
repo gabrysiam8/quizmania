@@ -28,7 +28,8 @@ public class ScoreController {
     @PostMapping
     public ResponseEntity<?> addScore(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody Score score) {
         try {
-            Score newScore = service.addScore(userDetails.getUsername(), score);
+            String username =  userDetails!=null ? userDetails.getUsername() : null;
+            Score newScore = service.addScore(username, score);
             return new ResponseEntity<>(newScore, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
