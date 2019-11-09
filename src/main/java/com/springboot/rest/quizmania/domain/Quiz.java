@@ -47,16 +47,18 @@ public class Quiz {
             return false;
         }
         Quiz quiz = (Quiz) o;
-        return Objects.equals(id, quiz.id) &&
-            Objects.equals(category, quiz.category) &&
+        return id.equals(quiz.id) &&
+            title.equals(quiz.title) &&
+            category.equals(quiz.category) &&
+            Objects.equals(description, quiz.description) &&
             level == quiz.level &&
             Objects.equals(isPublic, quiz.isPublic) &&
-            Objects.equals(questionIds, quiz.questionIds) &&
+            questionIds.equals(quiz.questionIds) &&
             Objects.equals(authorId, quiz.authorId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, category, level, isPublic, questionIds, authorId);
+        return Objects.hash(id, title, category, description, level, isPublic, questionIds, authorId);
     }
 }

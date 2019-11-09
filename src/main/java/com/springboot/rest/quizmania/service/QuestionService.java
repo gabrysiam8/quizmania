@@ -27,13 +27,12 @@ public class QuestionService {
         Question questionUpdate = repository
                                     .findById(id)
                                     .orElseThrow(() -> new IllegalArgumentException("No question with that id exists!"));
-        if(!newQuestion.getQuestion().equals(questionUpdate.getQuestion()))
-            questionUpdate.setQuestion(newQuestion.getQuestion());
+        if(newQuestion.equals(questionUpdate))
+            return questionUpdate;
 
-        if(!newQuestion.getAnswers().equals(questionUpdate.getAnswers()))
-            questionUpdate.setAnswers(newQuestion.getAnswers());
+        newQuestion.setId(questionUpdate.getId());
 
-        return repository.save(questionUpdate);
+        return repository.save(newQuestion);
     }
 
     public String deleteQuestion(String id) {

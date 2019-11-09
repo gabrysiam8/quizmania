@@ -1,6 +1,7 @@
 package com.springboot.rest.quizmania.domain;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -26,4 +27,24 @@ public class Question {
 
     @NotBlank
     private String correctAnswer;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Question question1 = (Question) o;
+        return id.equals(question1.id) &&
+            question.equals(question1.question) &&
+            answers.equals(question1.answers) &&
+            correctAnswer.equals(question1.correctAnswer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, question, answers, correctAnswer);
+    }
 }

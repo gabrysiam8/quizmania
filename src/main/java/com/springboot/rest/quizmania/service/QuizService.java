@@ -87,6 +87,12 @@ public class QuizService {
         if(newQuiz.equals(quizUpdate))
             return quizUpdate;
 
+        quizUpdate.getQuestionIds()
+                  .forEach(questionId -> {
+                      if(!newQuiz.getQuestionIds().contains(questionId))
+                          questionService.deleteQuestion(questionId);
+                  });
+
         newQuiz.setId(quizUpdate.getId());
 
         return repository.save(newQuiz);
@@ -95,8 +101,19 @@ public class QuizService {
     public String deleteQuiz(String id) {
         if(!repository.existsById(id))
             throw new IllegalArgumentException("No question with that id exists!");
+
+        deleteQuizQuestionsById(id);
         repository.deleteById(id);
         return "Quiz successfully deleted";
+    }
+
+    public List<Question> deleteQuizQuestionsById(String id) {
+        List<Question> questionsToDelete = getQuizQuestionsById(id);
+        questionsToDelete
+            .stream()
+            .map(Question::getId)
+            .forEach(questionService::deleteQuestion);
+        return questionsToDelete;
     }
 
     public List<String> getQuizDifficultyLevels() {
