@@ -30,4 +30,13 @@ public class StatisticsController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/ranking")
+    public ResponseEntity<?> getQuizRankingById(@RequestParam(value = "quizId", required = true) String quizId) {
+        try {
+            return new ResponseEntity<>(service.getQuizRankingById(quizId), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

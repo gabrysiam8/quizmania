@@ -1,5 +1,6 @@
 package com.springboot.rest.quizmania.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -83,9 +84,22 @@ public class StatisticsService {
 
         List<ScoreDto> scoreDtoList = quizScores
             .stream()
-            .map(score -> new ScoreDto(score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
+            .map(score -> new ScoreDto(score.getId(), score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
             .collect(Collectors.toList());
 
         return createStatistics(scoreDtoList);
+    }
+
+    public List<ScoreDto> getQuizRankingById(String quizId) {
+
+        List<Score> quizScores = scoreService.getScoresByQuizId(quizId);
+
+        List<ScoreDto> scoreDtoList = quizScores
+            .stream()
+            .map(score -> new ScoreDto(score.getId(), score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
+            .sorted(Comparator.comparingDouble(ScoreDto::getPercentageScore).reversed().thenComparingLong(ScoreDto::getElapsedTime))
+            .collect(Collectors.toList());
+
+        return scoreDtoList;
     }
 }

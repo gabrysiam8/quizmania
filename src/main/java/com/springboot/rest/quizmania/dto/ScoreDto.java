@@ -9,6 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class ScoreDto {
 
+    private String id;
+
     private long elapsedTime;
 
     private double percentageScore;

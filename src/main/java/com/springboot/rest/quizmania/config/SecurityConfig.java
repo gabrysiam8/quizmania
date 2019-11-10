@@ -78,6 +78,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .permitAll()
                 .antMatchers("/score/**")
                     .permitAll()
+                .antMatchers(HttpMethod.GET, "/statistics/ranking")
+                    .permitAll()
                 .anyRequest()
                     .authenticated();
 
