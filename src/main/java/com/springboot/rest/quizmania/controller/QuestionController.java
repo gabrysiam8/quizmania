@@ -3,6 +3,7 @@ package com.springboot.rest.quizmania.controller;
 import javax.validation.Valid;
 
 import com.springboot.rest.quizmania.domain.Question;
+import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.service.QuestionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,8 @@ public class QuestionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addQuestion(@Valid @RequestBody Question question) {
-        Question newQuestion = service.addQuestion(question);
+    public ResponseEntity<?> addQuestion(@Valid @RequestBody QuestionDto questionDto) {
+        Question newQuestion = service.addQuestion(questionDto);
         return new ResponseEntity<>(newQuestion, HttpStatus.OK);
     }
 
@@ -41,9 +42,9 @@ public class QuestionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateQuestion(@PathVariable(value="id") String id, @Valid @RequestBody Question question) {
+    public ResponseEntity<?> updateQuestion(@PathVariable(value="id") String id, @Valid @RequestBody QuestionDto questionDto) {
         try {
-            return new ResponseEntity<>(service.updateQuestion(id, question), HttpStatus.OK);
+            return new ResponseEntity<>(service.updateQuestion(id, questionDto), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

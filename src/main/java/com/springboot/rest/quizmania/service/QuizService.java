@@ -13,8 +13,8 @@ import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.domain.DifficultyLevel;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Quiz;
+import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.repository.QuizRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -51,16 +51,20 @@ public class QuizService {
         return mapper.writer(filters).writeValueAsString(quiz);
     }
 
-    public List<Question> getQuizQuestionsById(String id) {
-        return repository
-                .findById(id)
-                .map(quiz -> quiz
-                        .getQuestionIds()
-                        .stream()
-                        .map(questionService::getQuestionById)
-                        .collect(Collectors.toList())
-                )
-                .orElseThrow(() -> new IllegalArgumentException("No quiz with that id exists!"));
+    public List<?> getQuizQuestionsById(String id, boolean toScore) {
+        List<Question> questionsToScore = getAllQuizQuestions(id);
+        if(toScore)
+            return questionsToScore;
+        return questionsToScore
+            .stream()
+            .map(q -> {
+                List<String> badAnswers = q.getAnswers()
+                                           .stream()
+                                           .filter(a -> !a.equals(q.getCorrectAnswer()))
+                                           .collect(Collectors.toList());
+                return new QuestionDto(q.getId(), q.getQuestion(), badAnswers, q.getCorrectAnswer());
+            })
+            .collect(Collectors.toList());
     }
 
     public List<Quiz> getAllPublicQuizzes() {
@@ -108,7 +112,7 @@ public class QuizService {
     }
 
     public List<Question> deleteQuizQuestionsById(String id) {
-        List<Question> questionsToDelete = getQuizQuestionsById(id);
+        List<Question> questionsToDelete = getAllQuizQuestions(id);
         questionsToDelete
             .stream()
             .map(Question::getId)
@@ -121,5 +125,17 @@ public class QuizService {
             .stream(DifficultyLevel.values())
             .map(Enum::toString)
             .collect(Collectors.toList());
+    }
+
+    private List<Question> getAllQuizQuestions(String id) {
+        return repository
+            .findById(id)
+            .map(quiz -> quiz
+                .getQuestionIds()
+                .stream()
+                .map(questionService::getQuestionById)
+                .collect(Collectors.toList())
+            )
+            .orElseThrow(() -> new IllegalArgumentException("No quiz with that id exists!"));
     }
 }

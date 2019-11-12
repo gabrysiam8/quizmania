@@ -55,9 +55,10 @@ public class QuizController {
     }
 
     @GetMapping("/{id}/question")
-    public ResponseEntity<?> getQuizQuestionsById(@PathVariable(value="id") String id) {
+    public ResponseEntity<?> getQuizQuestionsById(@PathVariable(value="id") String id,
+                                                  @RequestParam(value = "toScore", required = true) boolean toScore) {
         try {
-            return new ResponseEntity<>(service.getQuizQuestionsById(id), HttpStatus.OK);
+            return new ResponseEntity<>(service.getQuizQuestionsById(id, toScore), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
