@@ -80,6 +80,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .permitAll()
                 .antMatchers(HttpMethod.GET, "/statistics/ranking")
                     .permitAll()
+                .antMatchers(HttpMethod.GET, "/confirmation")
+                    .permitAll()
+                .antMatchers(HttpMethod.PUT, "/user/{\\d+}/password")
+                    .permitAll()
                 .anyRequest()
                     .authenticated();
 

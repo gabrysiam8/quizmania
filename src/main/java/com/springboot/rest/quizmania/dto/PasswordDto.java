@@ -9,7 +9,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class PasswordDto {
 
-    @NotBlank
     private String oldPassword;
 
     @NotBlank
