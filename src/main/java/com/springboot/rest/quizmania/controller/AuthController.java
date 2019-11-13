@@ -49,12 +49,22 @@ public class AuthController {
     }
 
     @GetMapping(value="/confirmation")
-    public ResponseEntity<?> confirmUserAccount(@RequestParam("token")String confirmationToken)
-    {   try {
+    public ResponseEntity<?> confirmUserAccount(@RequestParam("token")String confirmationToken) {
+        try {
             String message = service.confirmUserAccount(confirmationToken);
             return new ResponseEntity<>(message, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping(value="/resetPassword")
+    public ResponseEntity<?> sendResetPasswordEmail(@RequestParam("email")String email)
+    {   try {
+        String message = service.sendResetPasswordEmail(email);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    } catch (IllegalArgumentException | MessagingException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
     }
 }

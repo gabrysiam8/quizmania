@@ -60,6 +60,18 @@ public class UserService {
         return "Password successfully changed";
     }
 
+    public String resetUserPassword(String id, PasswordDto passwords) {
+        CustomUser userUpdate = repository
+            .findById(id)
+            .orElseThrow(() -> new UsernameNotFoundException("No user with that email or username exists!"));
+
+        if(!passwords.getNewPassword().equals(passwords.getPasswordConfirmation()))
+            throw new IllegalArgumentException("The Password confirmation must match New password!");
+        userUpdate.setPassword(passwordEncoder.encode(passwords.getNewPassword()));
+        repository.save(userUpdate);
+        return "Password successfully changed";
+    }
+
     public String deleteUser(String username) {
         CustomUser user = repository.findByUsername(username);
         if(user==null)

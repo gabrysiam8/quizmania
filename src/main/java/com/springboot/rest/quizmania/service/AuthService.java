@@ -133,15 +133,32 @@ public class AuthService {
     }
 
     public String confirmUserAccount(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenService.getConfirmationToken(token);
-        if(confirmationToken==null) {
-            throw new IllegalArgumentException("Invalid token.");
-        }
-        Calendar cal = Calendar.getInstance();
-        if ((confirmationToken.getExpirationDate().getTime() - cal.getTime().getTime()) <= 0) {
-            throw new IllegalArgumentException("Token have expired.");
-        }
+        ConfirmationToken confirmationToken = confirmationTokenService.confirmToken(token);
         enableUser(confirmationToken.getUser());
         return "Account successfully verified.";
+    }
+
+    public String sendResetPasswordEmail(String email) throws MessagingException {
+        CustomUser user = repository.findByEmail(email);
+        if(user==null) {
+            throw new IllegalArgumentException("User with that email not exists!");
+        }
+
+        ConfirmationToken confirmationToken = confirmationTokenService.createToken(user);
+        String link = "https://quizmania-app.herokuapp.com/resetPassword?token="+confirmationToken.getToken();
+        String content = "To reset your password, please click here: <a href="+link+">verify</a>";
+
+        EmailDto emailDto = EmailDto.builder()
+                                    .to(email)
+                                    .replyTo("quizmania@no-reply.com")
+                                    .from("quizmania@no-reply.com")
+                                    .subject("Reset password")
+                                    .content(content)
+                                    .build();
+
+        MimeMessage mail = emailSenderService.createMimeMessage(emailDto);
+        emailSenderService.sendEmail(mail);
+
+        return "Email successfully send";
     }
 }
