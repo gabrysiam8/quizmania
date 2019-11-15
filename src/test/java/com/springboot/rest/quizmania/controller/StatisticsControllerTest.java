@@ -44,7 +44,7 @@ public class StatisticsControllerTest {
         double worstScore = 0;
         long avgTimeInMs = 11000;
         List<ScoreDto> scoreDtos = ALL_SCORES.stream()
-                                             .map(score -> new ScoreDto(score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
+                                             .map(score -> new ScoreDto(score.getId(), score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
                                              .collect(Collectors.toList());
         StatisticsDto statisticsDto = createStatisticsDto(attemptsNum, avgScore, bestScore, worstScore, avgTimeInMs, scoreDtos);
         given(service.getQuizStatisticsById(UNIQUE_USERNAME, QUIZ_ID, true)).willReturn(statisticsDto);
@@ -67,7 +67,7 @@ public class StatisticsControllerTest {
         double worstScore = 50;
         long avgTimeInMs = 12000;
         List<ScoreDto> scoreDtos = ALL_SCORES.subList(0, 1).stream()
-                                             .map(score -> new ScoreDto(score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
+                                             .map(score -> new ScoreDto(score.getId(), score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
                                              .collect(Collectors.toList());
         StatisticsDto statisticsDto = createStatisticsDto(attemptsNum, avgScore, bestScore, worstScore, avgTimeInMs, scoreDtos);
         given(service.getQuizStatisticsById(UNIQUE_USERNAME, QUIZ_ID, false)).willReturn(statisticsDto);

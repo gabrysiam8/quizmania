@@ -3,6 +3,7 @@ package com.springboot.rest.quizmania.controller;
 import java.util.List;
 
 import com.springboot.rest.quizmania.domain.Question;
+import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.service.QuestionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +45,7 @@ public class QuestionControllerTest {
     @Test
     @WithMockUser(username=UNIQUE_USERNAME)
     public void shouldReturnNewQuestionWhenSuccessfullyAdded() throws Exception {
-        given(service.addQuestion(any(Question.class))).willReturn(QUESTION);
+        given(service.addQuestion(any(QuestionDto.class))).willReturn(QUESTION);
 
         mockMvc.perform(post("/question")
             .content(readFile("requests/question.json"))
@@ -57,7 +58,7 @@ public class QuestionControllerTest {
     @Test
     @WithMockUser(username=UNIQUE_USERNAME)
     public void shouldReturnBadRequestWhenInvalidQuestionContent() throws Exception {
-        given(service.addQuestion(any(Question.class))).willReturn(QUESTION);
+        given(service.addQuestion(any(QuestionDto.class))).willReturn(QUESTION);
 
         mockMvc.perform(post("/question")
             .content("{}")
@@ -94,7 +95,7 @@ public class QuestionControllerTest {
                                     .answers(List.of("a","b", "c"))
                                     .correctAnswer("a")
                                     .build();
-        given(service.updateQuestion(anyString(), any(Question.class))).willReturn(questionUpdate);
+        given(service.updateQuestion(anyString(), any(QuestionDto.class))).willReturn(questionUpdate);
 
         mockMvc.perform(put("/question/"+QUESTION_ID)
                .content(readFile("requests/question-update.json"))

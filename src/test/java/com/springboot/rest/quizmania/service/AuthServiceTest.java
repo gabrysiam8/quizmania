@@ -1,6 +1,5 @@
 package com.springboot.rest.quizmania.service;
 
-import java.util.Calendar;
 import java.util.Map;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -258,13 +257,13 @@ public class AuthServiceTest {
         String token = "secrettoken";
         ConfirmationToken confirmationToken = new ConfirmationToken(token, DISABLED_USER);
 
-        when(confirmationTokenService.getConfirmationToken(anyString())).thenReturn(confirmationToken);
+        when(confirmationTokenService.confirmToken(anyString())).thenReturn(confirmationToken);
 
         //when
         String result = authService.confirmUserAccount(token);
 
         //then
-        verify(confirmationTokenService, times(1)).getConfirmationToken(anyString());
+        verify(confirmationTokenService, times(1)).confirmToken(anyString());
         assertNotNull(result);
         assertEquals(result, "Account successfully verified.");
     }
@@ -275,13 +274,14 @@ public class AuthServiceTest {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid token.");
         String token = "secrettoken";
-        when(confirmationTokenService.getConfirmationToken(anyString())).thenReturn(null);
+        Exception expectedException = new IllegalArgumentException("Invalid token.");
+        when(confirmationTokenService.confirmToken(anyString())).thenThrow(expectedException);
 
         //when
         authService.confirmUserAccount(token);
 
         //then
-        verify(confirmationTokenService, times(1)).getConfirmationToken(anyString());
+        verify(confirmationTokenService, times(1)).confirmToken(anyString());
     }
 
     @Test
@@ -289,17 +289,47 @@ public class AuthServiceTest {
         //given
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Token have expired.");
-
         String token = "secrettoken";
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, DISABLED_USER);
-        confirmationToken.setExpirationDate(Calendar.getInstance().getTime());
-
-        when(confirmationTokenService.getConfirmationToken(anyString())).thenReturn(confirmationToken);
+        Exception expectedException = new IllegalArgumentException("Token have expired.");
+        when(confirmationTokenService.confirmToken(anyString())).thenThrow(expectedException);
 
         //when
         authService.confirmUserAccount(token);
 
         //then
-        verify(confirmationTokenService, times(1)).getConfirmationToken(anyString());
+        verify(confirmationTokenService, times(1)).confirmToken(anyString());
+    }
+
+    @Test
+    public void shouldSendResetPasswordEmail() throws MessagingException {
+        //given
+        when(userRepository.findByEmail(anyString())).thenReturn(ENABLED_USER);
+        when(confirmationTokenService.createToken(any(CustomUser.class))).thenReturn(new ConfirmationToken("token", ENABLED_USER));
+        when(emailSenderService.createMimeMessage(any(EmailDto.class))).thenReturn(new MimeMessage((Session) null));
+
+        //when
+        String result = authService.sendResetPasswordEmail(ENABLED_USER.getEmail());
+
+        //then
+        verify(userRepository, times(1)).findByEmail(anyString());
+        verify(confirmationTokenService, times(1)).createToken(any(CustomUser.class));
+        verify(emailSenderService, times(1)).createMimeMessage(any(EmailDto.class));
+        verify(emailSenderService, times(1)).sendEmail(any(MimeMessage.class));
+        assertNotNull(result);
+        assertEquals(result, "Email successfully send");
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionWhenEmailNotExist() throws MessagingException {
+        //given
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("User with that email not exists!");
+        when(userRepository.findByEmail(anyString())).thenReturn(null);
+
+        //when
+        String result = authService.sendResetPasswordEmail("invalid@gmail.com");
+
+        //then
+        verify(userRepository, times(1)).findByEmail(anyString());
     }
 }

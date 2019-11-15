@@ -7,6 +7,7 @@ import java.util.List;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.repository.QuestionRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,8 +15,11 @@ public class QuestionService {
 
     private final QuestionRepository repository;
 
-    public QuestionService(QuestionRepository repository) {
+    private final ModelMapper modelMapper;
+
+    public QuestionService(QuestionRepository repository, ModelMapper modelMapper) {
         this.repository = repository;
+        this.modelMapper = modelMapper;
     }
 
     public Question addQuestion(QuestionDto questionDto) {
@@ -54,11 +58,9 @@ public class QuestionService {
         allAnswers.add(questionDto.getCorrectAnswer());
         Collections.shuffle(allAnswers);
 
-       return Question.builder()
-                      .id(questionDto.getId())
-                      .question(questionDto.getQuestion())
-                      .answers(allAnswers)
-                      .correctAnswer(questionDto.getCorrectAnswer())
-                      .build();
+        Question question = modelMapper.map(questionDto, Question.class);
+        question.setAnswers(allAnswers);
+
+       return question;
     }
 }

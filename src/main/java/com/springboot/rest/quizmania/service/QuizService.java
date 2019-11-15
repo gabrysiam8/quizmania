@@ -15,6 +15,7 @@ import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Quiz;
 import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.repository.QuizRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,10 +27,13 @@ public class QuizService {
 
     private final QuestionService questionService;
 
-    public QuizService(QuizRepository repository, AuthService authService, QuestionService questionService) {
+    private final ModelMapper modelMapper;
+
+    public QuizService(QuizRepository repository, AuthService authService, QuestionService questionService, ModelMapper modelMapper) {
         this.repository = repository;
         this.authService = authService;
         this.questionService = questionService;
+        this.modelMapper = modelMapper;
     }
 
     public Quiz addQuiz(String username, Quiz quiz) {
@@ -51,18 +55,22 @@ public class QuizService {
         return mapper.writer(filters).writeValueAsString(quiz);
     }
 
-    public List<?> getQuizQuestionsById(String id, boolean toScore) {
+    public List<Question> getQuizQuestionsById(String id) {
+        return getAllQuizQuestions(id);
+    }
+
+    public List<QuestionDto> getQuizQuestionDtosById(String id) {
         List<Question> questionsToScore = getAllQuizQuestions(id);
-        if(toScore)
-            return questionsToScore;
         return questionsToScore
             .stream()
             .map(q -> {
+                QuestionDto questionDto = modelMapper.map(q, QuestionDto.class);
                 List<String> badAnswers = q.getAnswers()
                                            .stream()
                                            .filter(a -> !a.equals(q.getCorrectAnswer()))
                                            .collect(Collectors.toList());
-                return new QuestionDto(q.getId(), q.getQuestion(), badAnswers, q.getCorrectAnswer());
+                questionDto.setBadAnswers(badAnswers);
+                return questionDto;
             })
             .collect(Collectors.toList());
     }

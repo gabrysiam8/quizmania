@@ -1,7 +1,5 @@
 package com.springboot.rest.quizmania.service;
 
-import java.net.SocketTimeoutException;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +13,6 @@ import com.springboot.rest.quizmania.dto.EmailDto;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

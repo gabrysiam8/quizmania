@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.springboot.rest.quizmania.domain.Question;
+import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.repository.QuestionRepository;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,6 +13,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.modelmapper.ModelMapper;
 
 import static com.springboot.rest.quizmania.common.TestData.QUESTION;
 import static com.springboot.rest.quizmania.common.TestData.QUESTION_ID;
@@ -32,22 +34,33 @@ public class QuestionServiceTest {
     @Mock
     private QuestionRepository questionRepository;
 
+    @Mock
+    private ModelMapper modelMapper;
+
     private QuestionService questionService;
 
     @Before
     public void setUp() {
-        questionService = new QuestionService(questionRepository);
+        questionService = new QuestionService(questionRepository, modelMapper);
     }
 
     @Test
     public void shouldAddQuestion() {
         //given
+        QuestionDto questionDto = QuestionDto.builder()
+                                             .question("test question")
+                                             .badAnswers(List.of("b", "c"))
+                                             .correctAnswer("a")
+                                             .build();
+
+        when(modelMapper.map(questionDto, Question.class)).thenReturn(QUESTION);
         when(questionRepository.save(any(Question.class))).thenReturn(QUESTION);
 
         //when
-        Question result = questionService.addQuestion(QUESTION);
+        Question result = questionService.addQuestion(questionDto);
 
         //then
+        verify(modelMapper, times(1)).map(any(QuestionDto.class), (Class<?>) any(Class.class));
         verify(questionRepository, times(1)).save(any(Question.class));
         assertNotNull(result);
         assertEquals(QUESTION, result);
@@ -85,20 +98,30 @@ public class QuestionServiceTest {
     @Test
     public void shouldUpdateQuestion() {
         //given
+        QuestionDto questionUpdateDto = QuestionDto.builder()
+                                             .id(QUESTION_ID)
+                                             .question("updated question")
+                                             .badAnswers(List.of("b", "c"))
+                                             .correctAnswer("a")
+                                             .build();
+
         Question questionUpdate = Question.builder()
                                           .id(QUESTION_ID)
                                           .question("updated question")
-                                          .answers(List.of("a","b", "c"))
+                                          .answers(List.of("a", "b", "c"))
                                           .correctAnswer("a")
                                           .build();
+
         when(questionRepository.findById(QUESTION_ID)).thenReturn(Optional.ofNullable(QUESTION));
-        when(questionRepository.save(questionUpdate)).thenReturn(questionUpdate);
+        when(modelMapper.map(questionUpdateDto, Question.class)).thenReturn(questionUpdate);
+        when(questionRepository.save(any(Question.class))).thenReturn(questionUpdate);
 
         //when
-        Question result = questionService.updateQuestion(QUESTION_ID, questionUpdate);
+        Question result = questionService.updateQuestion(QUESTION_ID, questionUpdateDto);
 
         //then
         verify(questionRepository, times(1)).findById(anyString());
+        verify(modelMapper, times(1)).map(any(QuestionDto.class), (Class<?>) any(Class.class));
         verify(questionRepository, times(1)).save(any(Question.class));
         assertNotNull(result);
         assertEquals(questionUpdate.getQuestion(), result.getQuestion());

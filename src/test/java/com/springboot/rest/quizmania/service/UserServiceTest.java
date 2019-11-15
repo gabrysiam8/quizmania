@@ -1,6 +1,7 @@
 package com.springboot.rest.quizmania.service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.PasswordDto;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static com.springboot.rest.quizmania.common.TestData.ENABLED_USER;
 import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
+import static com.springboot.rest.quizmania.common.TestData.USER_ID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -183,6 +185,24 @@ public class UserServiceTest {
         verify(passwordEncoder, times(1)).matches(anyString(), anyString());
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any(CustomUser.class));
+    }
+
+    @Test
+    public void shouldResetUserPassword() {
+        //given
+        String newPassword = "newPass";
+        PasswordDto passwordDto = new PasswordDto(null, newPassword, newPassword);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(ENABLED_USER));
+
+        //when
+        String result = userService.resetUserPassword(USER_ID, passwordDto);
+
+        //then
+        verify(userRepository, times(1)).findById(anyString());
+        verify(passwordEncoder, times(1)).encode(anyString());
+        verify(userRepository, times(1)).save(any(CustomUser.class));
+        assertNotNull(result);
+        assertEquals(result, "Password successfully changed");
     }
 
     @Test

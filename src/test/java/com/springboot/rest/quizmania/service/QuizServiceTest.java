@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.springboot.rest.quizmania.domain.DifficultyLevel;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Quiz;
+import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.repository.QuizRepository;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,6 +17,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.modelmapper.ModelMapper;
 
 import static com.springboot.rest.quizmania.common.TestData.ALL_QUIZZES;
 import static com.springboot.rest.quizmania.common.TestData.ENABLED_USER;
@@ -24,6 +26,7 @@ import static com.springboot.rest.quizmania.common.TestData.SAVED_PUBLIC_QUIZ;
 import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
 import static com.springboot.rest.quizmania.common.TestData.UNSAVED_QUIZ;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -45,11 +48,14 @@ public class QuizServiceTest {
     @Mock
     private QuestionService questionService;
 
+    @Mock
+    private ModelMapper modelMapper;
+
     private QuizService quizService;
 
     @Before
     public void setUp() {
-        quizService = new QuizService(quizRepository, authService, questionService);
+        quizService = new QuizService(quizRepository, authService, questionService, modelMapper);
     }
 
     @Test
@@ -142,6 +148,37 @@ public class QuizServiceTest {
     }
 
     @Test
+    public void shouldGetQuizQuestionDtosById() {
+        //given
+        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(SAVED_PUBLIC_QUIZ));
+
+        List<Question> questions = createQuestions(SAVED_PUBLIC_QUIZ.getQuestionIds());
+        when(questionService.getQuestionById(anyString())).thenReturn(questions.get(0),questions.get(1),questions.get(2));
+
+        List<QuestionDto> questionDtos = questions
+            .stream()
+            .map(q -> new QuestionDto(q.getId(), q.getQuestion(), null, q.getCorrectAnswer()))
+            .collect(Collectors.toList());
+        when(modelMapper.map(any(Question.class), any(Class.class))).thenReturn(questionDtos.get(0),questionDtos.get(1),questionDtos.get(2));
+
+        //when
+        List<QuestionDto> result = quizService.getQuizQuestionDtosById(QUIZ_ID);
+
+        //then
+        verify(quizRepository, times(1)).findById(anyString());
+        verify(questionService, times(3)).getQuestionById(anyString());
+        verify(modelMapper, times(3)).map(any(Question.class), any(Class.class));
+        assertNotNull(result);
+        int expectedSize = SAVED_PUBLIC_QUIZ.getQuestionIds().size();
+        assertEquals(expectedSize, result.size());
+        for (int i=0; i<expectedSize; i++) {
+            assertEquals(SAVED_PUBLIC_QUIZ.getQuestionIds().get(i), result.get(i).getId());
+            int expectedBadAnswersSize = questions.get(i).getAnswers().size()-1;
+            assertEquals(expectedBadAnswersSize, result.get(i).getBadAnswers().size());
+        }
+    }
+
+    @Test
     public void shouldGetAllPublicQuizzes() {
         //given
         when(quizRepository.findAll()).thenReturn(ALL_QUIZZES);
@@ -177,6 +214,7 @@ public class QuizServiceTest {
     public void shouldUpdateQuiz() {
         //given
         Quiz quizUpdate = Quiz.builder()
+                              .id(QUIZ_ID)
                               .title("updated title")
                               .category("test category")
                               .level(DifficultyLevel.EASY)
@@ -184,7 +222,7 @@ public class QuizServiceTest {
                               .questionIds(List.of("q-123", "q-456", "q-789"))
                               .authorId("userId-098")
                               .build();
-        when(quizRepository.findById(QUIZ_ID)).thenReturn(Optional.ofNullable(SAVED_PUBLIC_QUIZ));
+        when(quizRepository.findById(anyString())).thenReturn(Optional.ofNullable(SAVED_PUBLIC_QUIZ));
         when(quizRepository.save(any(Quiz.class))).thenReturn(quizUpdate);
         //when
         Quiz result = quizService.updateQuiz(QUIZ_ID, quizUpdate);
@@ -199,7 +237,10 @@ public class QuizServiceTest {
     @Test
     public void shouldDeleteQuiz() {
         //given
+        List<Question> questions = createQuestions(SAVED_PUBLIC_QUIZ.getQuestionIds());
         when(quizRepository.existsById(QUIZ_ID)).thenReturn(true);
+        when(quizRepository.findById(QUIZ_ID)).thenReturn(Optional.of(SAVED_PUBLIC_QUIZ));
+        when(questionService.getQuestionById(anyString())).thenReturn(questions.get(0),questions.get(1),questions.get(2));
 
         //when
         String result = quizService.deleteQuiz(QUIZ_ID);
@@ -207,6 +248,7 @@ public class QuizServiceTest {
         //then
         verify(quizRepository, times(1)).existsById(anyString());
         verify(quizRepository, times(1)).deleteById(anyString());
+        verify(questionService, times(3)).getQuestionById(anyString());
         assertNotNull(result);
         assertEquals("Quiz successfully deleted", result);
     }
