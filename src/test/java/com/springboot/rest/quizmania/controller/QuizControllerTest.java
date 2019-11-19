@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.springboot.rest.quizmania.domain.DifficultyLevel;
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.domain.Quiz;
+import com.springboot.rest.quizmania.dto.QuestionDto;
 import com.springboot.rest.quizmania.service.QuizService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -154,21 +155,46 @@ public class QuizControllerTest {
                .andExpect(content().string(expectedException.getMessage()));
     }
 
-//    @Test
-//    public void shouldReturnQuizQuestionsByIdWhenIdExist() throws Exception {
-//        List<?> questions = createQuestions(SAVED_PUBLIC_QUIZ.getQuestionIds());
-//        given(service.getQuizQuestionsById(QUIZ_ID, true)).willReturn(questions);
-//
-//        mockMvc.perform(get("/quiz/"+QUIZ_ID+"/question"))
-//               .andExpect(status().isOk())
-//               .andExpect(jsonPath("$.length()").value(3))
-//               .andExpect(jsonPath("$[0].id").value("q-123"))
-//               .andExpect(jsonPath("$[0].question").value("question q-123"))
-//               .andExpect(jsonPath("$[1].id").value("q-456"))
-//               .andExpect(jsonPath("$[1].question").value("question q-456"))
-//               .andExpect(jsonPath("$[2].id").value("q-789"))
-//               .andExpect(jsonPath("$[2].question").value("question q-789"));
-//    }
+    @Test
+    public void shouldReturnQuizQuestionsByIdWhenIdExist() throws Exception {
+        List<Question> questions = createQuestions(SAVED_PUBLIC_QUIZ.getQuestionIds());
+        given(service.getQuizQuestionsById(QUIZ_ID)).willReturn(questions);
+
+        mockMvc.perform(get("/quiz/"+QUIZ_ID+"/question?toScore=true"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.length()").value(3))
+               .andExpect(jsonPath("$[0].id").value("q-123"))
+               .andExpect(jsonPath("$[0].question").value("question q-123"))
+               .andExpect(jsonPath("$[1].id").value("q-456"))
+               .andExpect(jsonPath("$[1].question").value("question q-456"))
+               .andExpect(jsonPath("$[2].id").value("q-789"))
+               .andExpect(jsonPath("$[2].question").value("question q-789"));
+    }
+
+    @Test
+    public void shouldReturnQuizQuestionDtosByIdWhenIdExist() throws Exception {
+        List<QuestionDto> questionDtos = SAVED_PUBLIC_QUIZ
+            .getQuestionIds()
+            .stream()
+            .map(id -> QuestionDto.builder()
+                                  .id(id)
+                                  .question("question " + id)
+                                  .badAnswers(List.of("b", "c"))
+                                  .correctAnswer("a")
+                                  .build())
+            .collect(Collectors.toList());
+        given(service.getQuizQuestionDtosById(QUIZ_ID)).willReturn(questionDtos);
+
+        mockMvc.perform(get("/quiz/"+QUIZ_ID+"/question?toScore=false"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.length()").value(3))
+               .andExpect(jsonPath("$[0].id").value("q-123"))
+               .andExpect(jsonPath("$[0].question").value("question q-123"))
+               .andExpect(jsonPath("$[1].id").value("q-456"))
+               .andExpect(jsonPath("$[1].question").value("question q-456"))
+               .andExpect(jsonPath("$[2].id").value("q-789"))
+               .andExpect(jsonPath("$[2].question").value("question q-789"));
+    }
 
     @Test
     @WithMockUser(username=UNIQUE_USERNAME)
@@ -216,7 +242,7 @@ public class QuizControllerTest {
                .andExpect(jsonPath("$[3]").value(levels.get(3)));
     }
 
-    private List<?> createQuestions(List<String> ids) {
+    private List<Question> createQuestions(List<String> ids) {
         return ids
             .stream()
             .map(id -> Question.builder()

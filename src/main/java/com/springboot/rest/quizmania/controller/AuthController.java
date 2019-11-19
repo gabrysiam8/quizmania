@@ -59,12 +59,14 @@ public class AuthController {
     }
 
     @GetMapping(value="/resetPassword")
-    public ResponseEntity<?> sendResetPasswordEmail(@RequestParam("email")String email)
-    {   try {
-        String message = service.sendResetPasswordEmail(email);
-        return new ResponseEntity<>(message, HttpStatus.OK);
-    } catch (IllegalArgumentException | MessagingException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
+    public ResponseEntity<?> sendResetPasswordEmail(@RequestParam("email")String email) {
+        try {
+            String message = service.sendResetPasswordEmail(email);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (MessagingException | MailSendException e) {
+            return new ResponseEntity<>("Failed to send reset password e-mail!", HttpStatus.BAD_GATEWAY);
+        }
     }
 }

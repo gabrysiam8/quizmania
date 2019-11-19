@@ -63,8 +63,8 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void shouldReturnBadGatewayWhenEmailCannotBeSent() throws Exception {
-        Exception expectedException = new MessagingException("Email cannot be sent!");
+    public void shouldReturnBadGatewayWhenVerificationEmailCannotBeSent() throws Exception {
+        Exception expectedException = new MessagingException("Failed to send verification e-mail!");
         given(service.registerUser(any(CustomUser.class))).willThrow(expectedException);
 
         mockMvc.perform(post("/auth/register")
@@ -120,6 +120,39 @@ public class AuthControllerTest {
         mockMvc.perform(get("/auth/confirmation")
             .param("token", "invalidToken"))
                .andExpect(status().isBadRequest())
+               .andExpect(content().string(expectedException.getMessage()));
+    }
+
+    @Test
+    public void shouldSendResetPasswordEmail() throws Exception {
+        String expectedMessage = "Email successfully send";
+        given(service.sendResetPasswordEmail(anyString())).willReturn(expectedMessage);
+
+        mockMvc.perform(get("/auth/resetPassword")
+            .param("email", "test@gmail.com"))
+               .andExpect(status().isOk())
+               .andExpect(content().string(expectedMessage));
+    }
+
+    @Test
+    public void shouldReturnBadRequestWhenInvalidEmail() throws Exception {
+        Exception expectedException = new IllegalArgumentException("User with that email not exists!");
+        given(service.sendResetPasswordEmail(anyString())).willThrow(expectedException);
+
+        mockMvc.perform(get("/auth/resetPassword")
+            .param("email", "invalid@gmail.com"))
+               .andExpect(status().isBadRequest())
+               .andExpect(content().string(expectedException.getMessage()));
+    }
+
+    @Test
+    public void shouldReturnBadGatewayWhenResetEmailCannotBeSend() throws Exception {
+        Exception expectedException = new MessagingException("Failed to send reset password e-mail!");
+        given(service.sendResetPasswordEmail(anyString())).willThrow(expectedException);
+
+        mockMvc.perform(get("/auth/resetPassword")
+            .param("email", "test@gmail.com"))
+               .andExpect(status().isBadGateway())
                .andExpect(content().string(expectedException.getMessage()));
     }
 }

@@ -63,7 +63,7 @@ public class UserService {
     public String resetUserPassword(String id, PasswordDto passwords) {
         CustomUser userUpdate = repository
             .findById(id)
-            .orElseThrow(() -> new UsernameNotFoundException("No user with id exists!"));
+            .orElseThrow(() -> new IllegalArgumentException("No user with that id exists!"));
 
         if(!passwords.getNewPassword().equals(passwords.getPasswordConfirmation()))
             throw new IllegalArgumentException("The Password confirmation must match New password!");

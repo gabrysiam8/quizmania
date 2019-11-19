@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.springboot.rest.quizmania.common.TestData.UNIQUE_USERNAME;
+import static com.springboot.rest.quizmania.common.TestData.USER_ID;
 import static com.springboot.rest.quizmania.common.TestUtils.readFile;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -34,7 +35,6 @@ public class UserControllerTest {
 
     @MockBean
     private UserService service;
-
 
     @Test
     @WithMockUser(username=UNIQUE_USERNAME)
@@ -76,6 +76,35 @@ public class UserControllerTest {
 
         mockMvc.perform(put("/user/me/password")
             .content(readFile("requests/password-invalid.json"))
+            .contentType(APPLICATION_JSON))
+               .andExpect(status().isBadRequest())
+               .andExpect(content().string(expectedException.getMessage()));
+    }
+
+    @Test
+    @WithMockUser(username=UNIQUE_USERNAME)
+    public void shouldReturnSuccessMessageWhenPasswordReset() throws Exception {
+        String newPassword = "newPass";
+        PasswordDto passwordDto = new PasswordDto(null, newPassword, newPassword);
+        given(service.resetUserPassword(USER_ID, passwordDto)).willReturn("Password successfully changed");
+
+        mockMvc.perform(put("/user/"+USER_ID+"/password")
+            .content("{\"newPassword\": \"newPass\",\"passwordConfirmation\": \"newPass\"}")
+            .contentType(APPLICATION_JSON))
+               .andExpect(status().isOk())
+               .andExpect(content().string("Password successfully changed"));
+    }
+
+    @Test
+    @WithMockUser(username=UNIQUE_USERNAME)
+    public void shouldReturnBadRequestWhenUserNotExist() throws Exception {
+        Exception expectedException = new IllegalArgumentException("User with that id not exists!");
+        String newPassword = "newPass";
+        PasswordDto passwordDto = new PasswordDto(null, newPassword, newPassword);
+        given(service.resetUserPassword("1234", passwordDto)).willThrow(expectedException);
+
+        mockMvc.perform(put("/user/1234/password")
+            .content("{\"newPassword\": \"newPass\",\"passwordConfirmation\": \"newPass\"}")
             .contentType(APPLICATION_JSON))
                .andExpect(status().isBadRequest())
                .andExpect(content().string(expectedException.getMessage()));
