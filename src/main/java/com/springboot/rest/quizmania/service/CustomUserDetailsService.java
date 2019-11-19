@@ -1,6 +1,6 @@
 package com.springboot.rest.quizmania.service;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         String role = user.getRole();
-        List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(role));
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
         return new User(user.getUsername(), user.getPassword(), authorities);
     }
 }
