@@ -8,12 +8,14 @@ import javax.validation.constraints.Size;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="question")
 @Data
 @Builder
+@NoArgsConstructor
 public class Question {
 
     @Id

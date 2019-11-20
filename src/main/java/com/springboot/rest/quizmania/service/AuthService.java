@@ -143,7 +143,7 @@ public class AuthService {
 
         ConfirmationToken confirmationToken = confirmationTokenService.createToken(user);
         String link = "https://quizmania-app.herokuapp.com/resetPassword?token="+confirmationToken.getToken();
-        String content = "To reset your password, please click here: <a href="+link+">verify</a>";
+        String content = "To reset your password, please click here: <a href="+link+">reset</a>";
 
         EmailDto emailDto = EmailDto.builder()
                                     .to(email)
