@@ -94,12 +94,10 @@ public class StatisticsService {
 
         List<Score> quizScores = scoreService.getScoresByQuizId(quizId);
 
-        List<ScoreDto> scoreDtoList = quizScores
+        return quizScores
             .stream()
             .map(score -> new ScoreDto(score.getId(), score.getElapsedTimeInMs(), score.getPercentageScore(), score.getStartDate()))
             .sorted(Comparator.comparingDouble(ScoreDto::getPercentageScore).reversed().thenComparingLong(ScoreDto::getElapsedTime))
             .collect(Collectors.toList());
-
-        return scoreDtoList;
     }
 }

@@ -37,6 +37,8 @@ public class AuthService {
 
     private final EmailSenderService emailSenderService;
 
+    private final static String APP_URL = "https://quizmania-app.herokuapp.com";
+
 
     public AuthService(UserRepository repository, AuthenticationManager authenticationManager,
                        PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider,
@@ -84,16 +86,10 @@ public class AuthService {
         CustomUser savedUser = repository.save(newUser);
 
         ConfirmationToken confirmationToken = confirmationTokenService.createToken(savedUser);
-        String link = "https://quizmania-app.herokuapp.com/confirmation?token="+confirmationToken.getToken();
+        String link = APP_URL+"/confirmation?token="+confirmationToken.getToken();
         String content = "To confirm your account, please click here: <a href="+link+">verify</a>";
 
-        EmailDto emailDto = EmailDto.builder()
-            .to(user.getEmail())
-            .replyTo("quizmania@no-reply.com")
-            .from("quizmania@no-reply.com")
-            .subject("Complete Registration")
-            .content(content)
-            .build();
+        EmailDto emailDto = createEmailMessage(user.getEmail(), "Complete Registration", content);
 
         try {
             MimeMessage mail = emailSenderService.createMimeMessage(emailDto);
@@ -111,14 +107,13 @@ public class AuthService {
         if(user==null)
             throw new UsernameNotFoundException("No user with that email or username exists!");
 
-        Authentication authentication = authenticationManager.authenticate(
+        authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 userDto.getUsername(),
                 userDto.getPassword()
             )
         );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
         if(!user.isEnabled())
             throw new DisabledException("User account is locked!");
 
@@ -142,20 +137,24 @@ public class AuthService {
         }
 
         ConfirmationToken confirmationToken = confirmationTokenService.createToken(user);
-        String link = "https://quizmania-app.herokuapp.com/resetPassword?token="+confirmationToken.getToken();
+        String link = APP_URL+"/resetPassword?token="+confirmationToken.getToken();
         String content = "To reset your password, please click here: <a href="+link+">reset</a>";
 
-        EmailDto emailDto = EmailDto.builder()
-                                    .to(email)
-                                    .replyTo("quizmania@no-reply.com")
-                                    .from("quizmania@no-reply.com")
-                                    .subject("Reset password")
-                                    .content(content)
-                                    .build();
+        EmailDto emailDto = createEmailMessage(email, "Reset password", content);
 
         MimeMessage mail = emailSenderService.createMimeMessage(emailDto);
         emailSenderService.sendEmail(mail);
 
         return "Email successfully send";
+    }
+
+    private EmailDto createEmailMessage(String emailAddress, String subject, String content) {
+        return EmailDto.builder()
+                       .to(emailAddress)
+                       .replyTo("quizmania@no-reply.com")
+                       .from("quizmania@no-reply.com")
+                       .subject(subject)
+                       .content(content)
+                       .build();
     }
 }

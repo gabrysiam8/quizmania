@@ -119,7 +119,7 @@ public class QuizService {
         return "Quiz successfully deleted";
     }
 
-    public List<Question> deleteQuizQuestionsById(String id) {
+    private List<Question> deleteQuizQuestionsById(String id) {
         List<Question> questionsToDelete = getAllQuizQuestions(id);
         questionsToDelete
             .stream()

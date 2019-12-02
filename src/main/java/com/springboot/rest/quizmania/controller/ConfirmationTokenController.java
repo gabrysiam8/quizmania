@@ -18,7 +18,7 @@ public class ConfirmationTokenController {
         this.service = service;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<?> confirmToken(@RequestParam("token")String token) {
         try {
             return new ResponseEntity<>(service.confirmToken(token), HttpStatus.OK);
