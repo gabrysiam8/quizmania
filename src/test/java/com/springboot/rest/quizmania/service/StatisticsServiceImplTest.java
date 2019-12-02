@@ -19,16 +19,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StatisticsServiceTest {
+public class StatisticsServiceImplTest {
 
     @Mock
     private ScoreService scoreService;
 
-    private StatisticsService statisticsService;
+    private StatisticsServiceImpl statisticsService;
 
     @Before
     public void setUp() {
-        statisticsService = new StatisticsService(scoreService);
+        statisticsService = new StatisticsServiceImpl(scoreService);
     }
 
     @Test

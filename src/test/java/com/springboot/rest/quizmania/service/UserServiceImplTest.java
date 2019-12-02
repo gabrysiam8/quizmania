@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserServiceTest {
+public class UserServiceImplTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -48,11 +48,11 @@ public class UserServiceTest {
     @Mock
     private ScoreService scoreService;
 
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     @Before
     public void setUp() {
-        userService = new UserService(userRepository, passwordEncoder, quizService, scoreService);
+        userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, quizService, scoreService);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class UserServiceTest {
         when(scoreService.getScoresByUser(UNIQUE_USERNAME)).thenReturn(Collections.emptyList());
 
         //when
-        UserDto result = userService.getUserInfo(UNIQUE_USERNAME);
+        UserDto result = userServiceImpl.getUserInfo(UNIQUE_USERNAME);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -83,7 +83,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(null);
 
         //when
-        userService.getUserInfo(UNIQUE_USERNAME);
+        userServiceImpl.getUserInfo(UNIQUE_USERNAME);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -99,7 +99,7 @@ public class UserServiceTest {
         when(quizService.getAllUserQuizzes(UNIQUE_USERNAME)).thenReturn(null);
 
         //when
-        userService.getUserInfo(UNIQUE_USERNAME);
+        userServiceImpl.getUserInfo(UNIQUE_USERNAME);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -116,7 +116,7 @@ public class UserServiceTest {
         when(scoreService.getScoresByUser(UNIQUE_USERNAME)).thenReturn(null);
 
         //when
-        userService.getUserInfo(UNIQUE_USERNAME);
+        userServiceImpl.getUserInfo(UNIQUE_USERNAME);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -134,7 +134,7 @@ public class UserServiceTest {
         when(passwordEncoder.matches(passwordDto.getOldPassword(), ENABLED_USER.getPassword())).thenReturn(true);
 
         //when
-        String result = userService.updateUserPassword(UNIQUE_USERNAME, passwordDto);
+        String result = userServiceImpl.updateUserPassword(UNIQUE_USERNAME, passwordDto);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -157,7 +157,7 @@ public class UserServiceTest {
         when(passwordEncoder.matches(passwordDto.getOldPassword(), ENABLED_USER.getPassword())).thenReturn(false);
 
         //when
-        userService.updateUserPassword(UNIQUE_USERNAME, passwordDto);
+        userServiceImpl.updateUserPassword(UNIQUE_USERNAME, passwordDto);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -178,7 +178,7 @@ public class UserServiceTest {
         when(passwordEncoder.matches(passwordDto.getOldPassword(), ENABLED_USER.getPassword())).thenReturn(true);
 
         //when
-        userService.updateUserPassword(UNIQUE_USERNAME, passwordDto);
+        userServiceImpl.updateUserPassword(UNIQUE_USERNAME, passwordDto);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());
@@ -195,7 +195,7 @@ public class UserServiceTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(ENABLED_USER));
 
         //when
-        String result = userService.resetUserPassword(USER_ID, passwordDto);
+        String result = userServiceImpl.resetUserPassword(USER_ID, passwordDto);
 
         //then
         verify(userRepository, times(1)).findById(anyString());
@@ -211,7 +211,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
 
         //when
-        String result = userService.deleteUser(UNIQUE_USERNAME);
+        String result = userServiceImpl.deleteUser(UNIQUE_USERNAME);
 
         //then
         verify(userRepository, times(1)).findByUsername(anyString());

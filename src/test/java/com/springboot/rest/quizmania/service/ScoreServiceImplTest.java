@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ScoreServiceTest {
+public class ScoreServiceImplTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -41,16 +41,16 @@ public class ScoreServiceTest {
     private ScoreRepository scoreRepository;
 
     @Mock
-    private AuthService authService;
+    private UserFinderService userFinderService;
 
     @Mock
     private QuestionService questionService;
 
-    private ScoreService scoreService;
+    private ScoreServiceImpl scoreService;
 
     @Before
     public void setUp() {
-        scoreService = new ScoreService(scoreRepository, authService, questionService);
+        scoreService = new ScoreServiceImpl(scoreRepository, userFinderService, questionService);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ScoreServiceTest {
                      .endDate(SAVED_SCORE.getEndDate())
                      .userAnswers(Map.of("qId-1", "good answer", "qId-2", "bad answer"))
                      .build();
-        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(userFinderService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
         List<Question> questions = new ArrayList<>();
         score.getUserAnswers().keySet().forEach(id -> questions.add(createQuestion(id)));
         when(questionService.getQuestionById(anyString())).thenReturn(questions.get(0), questions.get(1));
@@ -72,7 +72,7 @@ public class ScoreServiceTest {
         Score result = scoreService.addScore(UNIQUE_USERNAME, score);
 
         //then
-        verify(authService, times(1)).findUserByUsername(anyString());
+        verify(userFinderService, times(1)).findUserByUsername(anyString());
         verify(questionService, times(2)).getQuestionById(anyString());
         verify(scoreRepository, times(1)).save(any(Score.class));
         assertNotNull(result);
@@ -114,14 +114,14 @@ public class ScoreServiceTest {
     @Test
     public void shouldGetScoresByUser() {
         //given
-        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(userFinderService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
         when(scoreRepository.getScoresByUserId(anyString())).thenReturn(List.of(SAVED_SCORE));
 
         //when
         List<Score> result = scoreService.getScoresByUser(UNIQUE_USERNAME);
 
         //then
-        verify(authService, times(1)).findUserByUsername(anyString());
+        verify(userFinderService, times(1)).findUserByUsername(anyString());
         verify(scoreRepository, times(1)).getScoresByUserId(anyString());
         assertNotNull(result);
         assertEquals(1, result.size());

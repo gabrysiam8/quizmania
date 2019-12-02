@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.springboot.rest.quizmania.domain.Question;
 import com.springboot.rest.quizmania.dto.QuestionDto;
-import com.springboot.rest.quizmania.service.QuestionService;
+import com.springboot.rest.quizmania.service.QuestionServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class QuestionControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private QuestionService service;
+    private QuestionServiceImpl service;
 
     @Test
     @WithMockUser(username=UNIQUE_USERNAME)

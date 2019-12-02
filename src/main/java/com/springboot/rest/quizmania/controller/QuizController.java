@@ -84,9 +84,4 @@ public class QuizController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
-    @GetMapping("/level")
-    public ResponseEntity<?> getAllQuizLevels() {
-        return new ResponseEntity<>(service.getQuizDifficultyLevels(), HttpStatus.OK);
-    }
 }

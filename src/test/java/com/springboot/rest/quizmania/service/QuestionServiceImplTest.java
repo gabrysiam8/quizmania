@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QuestionServiceTest {
+public class QuestionServiceImplTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -37,11 +37,11 @@ public class QuestionServiceTest {
     @Mock
     private ModelMapper modelMapper;
 
-    private QuestionService questionService;
+    private QuestionServiceImpl questionService;
 
     @Before
     public void setUp() {
-        questionService = new QuestionService(questionRepository, modelMapper);
+        questionService = new QuestionServiceImpl(questionRepository, modelMapper);
     }
 
     @Test

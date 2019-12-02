@@ -228,20 +228,6 @@ public class QuizControllerTest {
                .andExpect(content().string("Quiz successfully deleted"));
     }
 
-    @Test
-    public void shouldReturnAllQuizLevels() throws Exception {
-        List<String> levels = List.of("EASY", "NORMAL", "HARD", "EXPERT");
-        given(service.getQuizDifficultyLevels()).willReturn(levels);
-
-        mockMvc.perform(get("/quiz/level"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.length()").value(4))
-               .andExpect(jsonPath("$[0]").value(levels.get(0)))
-               .andExpect(jsonPath("$[1]").value(levels.get(1)))
-               .andExpect(jsonPath("$[2]").value(levels.get(2)))
-               .andExpect(jsonPath("$[3]").value(levels.get(3)));
-    }
-
     private List<Question> createQuestions(List<String> ids) {
         return ids
             .stream()

@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConfirmationTokenServiceTest {
+public class ConfirmationTokenServiceImplTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -31,13 +31,13 @@ public class ConfirmationTokenServiceTest {
     @Mock
     private ConfirmationTokenRepository tokenRepository;
 
-    private ConfirmationTokenService tokenService;
+    private ConfirmationTokenServiceImpl tokenService;
 
     private ConfirmationToken confirmationToken;
 
     @Before
     public void setUp() {
-        tokenService = new ConfirmationTokenService(tokenRepository);
+        tokenService = new ConfirmationTokenServiceImpl(tokenRepository);
 
         confirmationToken = new ConfirmationToken(CONFIRMATION_TOKEN, DISABLED_USER);
     }

@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QuizServiceTest {
+public class QuizServiceImplTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -43,7 +43,7 @@ public class QuizServiceTest {
     private QuizRepository quizRepository;
 
     @Mock
-    private AuthService authService;
+    private UserFinderService userFinderService;
 
     @Mock
     private QuestionService questionService;
@@ -55,20 +55,20 @@ public class QuizServiceTest {
 
     @Before
     public void setUp() {
-        quizService = new QuizService(quizRepository, authService, questionService, modelMapper);
+        quizService = new QuizServiceImpl(quizRepository, userFinderService, questionService, modelMapper);
     }
 
     @Test
     public void shouldAddQuiz() {
         //given
-        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(userFinderService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
         when(quizRepository.save(any(Quiz.class))).thenReturn(SAVED_PUBLIC_QUIZ);
 
         //when
         Quiz result = quizService.addQuiz(UNIQUE_USERNAME, UNSAVED_QUIZ);
 
         //then
-        verify(authService, times(1)).findUserByUsername(anyString());
+        verify(userFinderService, times(1)).findUserByUsername(anyString());
         verify(quizRepository, times(1)).save(any(Quiz.class));
         assertNotNull(result);
         assertEquals(QUIZ_ID, result.getId());
@@ -196,14 +196,14 @@ public class QuizServiceTest {
     @Test
     public void shouldGetAllUserQuizzes() {
         //given
-        when(authService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(userFinderService.findUserByUsername(anyString())).thenReturn(ENABLED_USER);
         when(quizRepository.findAll()).thenReturn(ALL_QUIZZES);
 
         //when
         List<Quiz> result = quizService.getAllUserQuizzes(UNIQUE_USERNAME);
 
         //then
-        verify(authService, times(1)).findUserByUsername(anyString());
+        verify(userFinderService, times(1)).findUserByUsername(anyString());
         verify(quizRepository, times(1)).findAll();
         assertNotNull(result);
         assertEquals(2, result.size());

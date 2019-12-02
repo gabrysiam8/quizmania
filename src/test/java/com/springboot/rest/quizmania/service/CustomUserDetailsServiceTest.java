@@ -38,8 +38,8 @@ public class CustomUserDetailsServiceTest {
     @Test
     public void shouldLoadUser() {
         //given
-        when(userRepository.findByEmail(anyString())).thenReturn(null);
-        when(userRepository.findByUsername(anyString())).thenReturn(ENABLED_USER);
+        when(userRepository.findByEmail(UNIQUE_USERNAME)).thenReturn(null);
+        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(ENABLED_USER);
 
         //when
         UserDetails result = customUserDetailsService.loadUserByUsername(UNIQUE_USERNAME);
