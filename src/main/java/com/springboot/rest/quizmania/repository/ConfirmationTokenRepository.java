@@ -1,7 +1,5 @@
 package com.springboot.rest.quizmania.repository;
 
-import java.util.List;
-
 import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

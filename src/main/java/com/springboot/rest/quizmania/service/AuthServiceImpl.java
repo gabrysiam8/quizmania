@@ -11,6 +11,7 @@ import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.EmailDto;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
+import com.springboot.rest.quizmania.dto.UserRegisterDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
 import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,25 +56,21 @@ public class AuthServiceImpl implements AuthService{
             .orElse(repository.findByUsername(emailOrUsername));
     }
 
-//    public CustomUser findUserByUsername(String username) {
-//        CustomUser currentUser = repository.findByUsername(username);
-//        if(currentUser==null)
-//            throw new UsernameNotFoundException("No user with that email or username exists!");
-//        return currentUser;
-//    }
-
     private CustomUser enableUser(CustomUser user) {
         user.setEnabled(true);
         return repository.save(user);
     }
 
     @Override
-    public CustomUser registerUser(CustomUser user) throws MessagingException {
+    public CustomUser registerUser(UserRegisterDto user) throws MessagingException {
         if(repository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("User with this email already exists!");
         }
         if(repository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("User with this username already exists!");
+        }
+        if(!user.getPassword().equals(user.getPasswordConfirmation())) {
+            throw new IllegalArgumentException("The Password confirmation must match Password!");
         }
 
         CustomUser newUser = CustomUser.builder()

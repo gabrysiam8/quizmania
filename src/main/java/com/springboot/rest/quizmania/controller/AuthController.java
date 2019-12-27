@@ -3,8 +3,8 @@ package com.springboot.rest.quizmania.controller;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 
-import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
+import com.springboot.rest.quizmania.dto.UserRegisterDto;
 import com.springboot.rest.quizmania.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody CustomUser user) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegisterDto user) {
         try {
             service.registerUser(user);
             return new ResponseEntity<>("Account successfully created", HttpStatus.CREATED);

@@ -5,10 +5,11 @@ import javax.mail.MessagingException;
 
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
+import com.springboot.rest.quizmania.dto.UserRegisterDto;
 
 public interface AuthService {
 
-    CustomUser registerUser(CustomUser user) throws MessagingException;
+    CustomUser registerUser(UserRegisterDto user) throws MessagingException;
     Map<String,String> loginUser(UserLoginDto userDto);
     String confirmUserAccount(String token);
     String sendResetPasswordEmail(String email) throws MessagingException;
