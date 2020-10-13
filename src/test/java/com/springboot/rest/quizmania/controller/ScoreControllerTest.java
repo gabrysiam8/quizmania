@@ -53,8 +53,8 @@ public class ScoreControllerTest {
                .andExpect(jsonPath("$.id").value(SCORE_ID))
                .andExpect(jsonPath("$.quizId").value(QUIZ_ID))
                .andExpect(jsonPath("$.userId").value(USER_ID))
-               .andExpect(jsonPath("$.startDate").value("2019-11-04T11:50:00.000+0000"))
-               .andExpect(jsonPath("$.endDate").value("2019-11-04T11:50:12.000+0000"));
+               .andExpect(jsonPath("$.startDate").value("2019-11-04T11:50:00.000+00:00"))
+               .andExpect(jsonPath("$.endDate").value("2019-11-04T11:50:12.000+00:00"));
     }
 
     @Test
@@ -66,8 +66,8 @@ public class ScoreControllerTest {
                .andExpect(jsonPath("$.id").value(SCORE_ID))
                .andExpect(jsonPath("$.quizId").value(QUIZ_ID))
                .andExpect(jsonPath("$.userId").value(USER_ID))
-               .andExpect(jsonPath("$.startDate").value("2019-11-04T11:50:00.000+0000"))
-               .andExpect(jsonPath("$.endDate").value("2019-11-04T11:50:12.000+0000"));
+               .andExpect(jsonPath("$.startDate").value("2019-11-04T11:50:00.000+00:00"))
+               .andExpect(jsonPath("$.endDate").value("2019-11-04T11:50:12.000+00:00"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ScoreControllerTest {
                .andExpect(jsonPath("$[0].id").value(SCORE_ID))
                .andExpect(jsonPath("$[0].quizId").value(QUIZ_ID))
                .andExpect(jsonPath("$[0].userId").value(USER_ID))
-               .andExpect(jsonPath("$[0].startDate").value("2019-11-04T11:50:00.000+0000"))
-               .andExpect(jsonPath("$[0].endDate").value("2019-11-04T11:50:12.000+0000"));
+               .andExpect(jsonPath("$[0].startDate").value("2019-11-04T11:50:00.000+00:00"))
+               .andExpect(jsonPath("$[0].endDate").value("2019-11-04T11:50:12.000+00:00"));
     }
 }

@@ -19,7 +19,7 @@ public class TestData {
 
     public static final String CONFIRMATION_TOKEN = "token-1234";
 
-    public static CustomUser DISABLED_USER = CustomUser.builder()
+    public static final CustomUser DISABLED_USER = CustomUser.builder()
                                              .id(USER_ID)
                                              .email("test@gmail.com")
                                              .username(UNIQUE_USERNAME)
@@ -27,7 +27,7 @@ public class TestData {
                                              .role("USER")
                                              .build();
 
-    public static CustomUser ENABLED_USER = CustomUser.builder()
+    public static final CustomUser ENABLED_USER = CustomUser.builder()
                                                        .id(USER_ID)
                                                        .email("test@gmail.com")
                                                        .username(UNIQUE_USERNAME)

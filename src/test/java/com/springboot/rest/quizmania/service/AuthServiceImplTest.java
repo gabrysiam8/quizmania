@@ -10,6 +10,7 @@ import com.springboot.rest.quizmania.domain.ConfirmationToken;
 import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.EmailDto;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
+import com.springboot.rest.quizmania.dto.UserRegisterDto;
 import com.springboot.rest.quizmania.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,46 +61,19 @@ public class AuthServiceImplTest {
 
     private AuthServiceImpl authServiceImpl;
 
-    private CustomUser user;
+    private UserRegisterDto userRegisterDto;
 
     @Before
     public void setUp() {
         authServiceImpl = new AuthServiceImpl(userRepository, authenticationManager, passwordEncoder, tokenProvider, confirmationTokenService, emailSenderService);
 
-        user = CustomUser.builder()
-                         .email("test@gmail.com")
-                         .username(UNIQUE_USERNAME)
-                         .password("pass")
-                         .build();
+        userRegisterDto = UserRegisterDto.builder()
+                .email("test@gmail.com")
+                .username(UNIQUE_USERNAME)
+                .password("pass")
+                .passwordConfirmation("pass")
+                .build();
     }
-
-//    @Test
-//    public void shouldFindUserByUsername() {
-//        //given
-//        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(DISABLED_USER);
-//
-//        //when
-//        CustomUser result = authServiceImpl.findUserByUsername(UNIQUE_USERNAME);
-//
-//        //then
-//        verify(userRepository, times(1)).findByUsername(anyString());
-//        assertNotNull(result);
-//        assertEquals(UNIQUE_USERNAME, result.getUsername());
-//    }
-//
-//    @Test
-//    public void shouldThrowUsernameNotFoundExceptionWhenUserNotExist() {
-//        //given
-//        exception.expect(UsernameNotFoundException.class);
-//        exception.expectMessage("No user with that email or username exists!");
-//        when(userRepository.findByUsername(UNIQUE_USERNAME)).thenReturn(null);
-//
-//        //when
-//        authServiceImpl.findUserByUsername(UNIQUE_USERNAME);
-//
-//        //then
-//        verify(userRepository, times(1)).findByUsername(anyString());
-//    }
 
     @Test
     public void shouldRegisterUser() throws MessagingException {
@@ -111,7 +85,7 @@ public class AuthServiceImplTest {
         when(emailSenderService.createMimeMessage(any(EmailDto.class))).thenReturn(new MimeMessage((Session) null));
 
         //when
-        CustomUser result = authServiceImpl.registerUser(user);
+        CustomUser result = authServiceImpl.registerUser(userRegisterDto);
 
         //then
         verify(userRepository, times(1)).existsByEmail(anyString());
@@ -133,7 +107,7 @@ public class AuthServiceImplTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
         //when
-        authServiceImpl.registerUser(user);
+        authServiceImpl.registerUser(userRegisterDto);
 
         //then
         verify(userRepository, times(1)).existsByEmail(anyString());
@@ -153,7 +127,7 @@ public class AuthServiceImplTest {
         when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
         //when
-        authServiceImpl.registerUser(user);
+        authServiceImpl.registerUser(userRegisterDto);
 
         //then
         verify(userRepository, times(1)).existsByEmail(anyString());
@@ -174,7 +148,7 @@ public class AuthServiceImplTest {
         when(confirmationTokenService.createToken(any(CustomUser.class))).thenReturn(null);
 
         //when
-        authServiceImpl.registerUser(user);
+        authServiceImpl.registerUser(userRegisterDto);
 
         //then
         verify(userRepository, times(1)).existsByEmail(anyString());
@@ -196,7 +170,7 @@ public class AuthServiceImplTest {
         when(emailSenderService.createMimeMessage(any(EmailDto.class))).thenThrow(MessagingException.class);
 
         //when
-        authServiceImpl.registerUser(user);
+        authServiceImpl.registerUser(userRegisterDto);
 
         //then
         verify(userRepository, times(1)).existsByEmail(anyString());

@@ -3,8 +3,8 @@ package com.springboot.rest.quizmania.controller;
 import java.util.Map;
 import javax.mail.MessagingException;
 
-import com.springboot.rest.quizmania.domain.CustomUser;
 import com.springboot.rest.quizmania.dto.UserLoginDto;
+import com.springboot.rest.quizmania.dto.UserRegisterDto;
 import com.springboot.rest.quizmania.service.AuthService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +41,7 @@ public class AuthControllerTest {
 
     @Test
     public void shouldReturnSuccessMessageWhenAccountCreated() throws Exception {
-        given(service.registerUser(any(CustomUser.class))).willReturn(DISABLED_USER);
+        given(service.registerUser(any(UserRegisterDto.class))).willReturn(DISABLED_USER);
 
         mockMvc.perform(post("/auth/register")
             .content(readFile("requests/user.json"))
@@ -53,7 +53,7 @@ public class AuthControllerTest {
     @Test
     public void shouldReturnConflictWhenEmailAlreadyExist() throws Exception {
         Exception expectedException = new IllegalArgumentException("User with this email already exists!");
-        given(service.registerUser(any(CustomUser.class))).willThrow(expectedException);
+        given(service.registerUser(any(UserRegisterDto.class))).willThrow(expectedException);
 
         mockMvc.perform(post("/auth/register")
             .content(readFile("requests/user.json"))
@@ -65,7 +65,7 @@ public class AuthControllerTest {
     @Test
     public void shouldReturnBadGatewayWhenVerificationEmailCannotBeSent() throws Exception {
         Exception expectedException = new MessagingException("Failed to send verification e-mail!");
-        given(service.registerUser(any(CustomUser.class))).willThrow(expectedException);
+        given(service.registerUser(any(UserRegisterDto.class))).willThrow(expectedException);
 
         mockMvc.perform(post("/auth/register")
             .content(readFile("requests/user.json"))
